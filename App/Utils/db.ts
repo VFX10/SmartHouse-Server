@@ -1,5 +1,5 @@
 import { Pool, PoolClient } from 'pg';
-import { db } from './../config';
+import { db } from '../../config';
 import { IQuery } from './models';
 
 const pool = new Pool(db);

@@ -1,50 +1,40 @@
-import * as jwt from 'jsonwebtoken';
-import Utils from './Utils';
-import { tokenKey } from './config';
+    
+import Koa from 'koa';
+import jwt from 'jsonwebtoken';
+import { encript, decript } from './cripting';
+import { tokenKey } from './../config';
 
-class Token {
-    constructor() {
-    }
-
-    public generateToken = (data: any) => {
-
-        if (data.status.StatusMessage == 'Success') {
-            return new Promise((res: any, rej: any) => {
-
-                jwt.sign({ branch: data.result[0].Branch, type: data.result[0].Type }, tokenKey, (err: any, token: any) => {
-                    if (err) {
-                        rej(err)
-                    }
-                    res(Utils.encryptText(token));
-                });
-
-            });
-        }
-    }
-
-    public verifyToken = async (ctx: any, next: any) => {
-        try {
-            const bearerHeader = ctx.request.headers['authorization'];
-            if (bearerHeader) {
-                await this.checkToken(bearerHeader.split(' ')[1]);
-                await next();
-            } else {
-                ctx.status = 401;
+export function generateToken(data: Object) {
+    return new Promise((res, rej) => {
+        jwt.sign(data, tokenKey, (err: any, token: any) => {
+            if (err) {
+                rej(err);
             }
-        } catch (error) {
-            ctx.status = 401;
-        }
-    }
-
-    public checkToken = (token: any) => {
-        return new Promise((res: any, rej: any) => {
-            jwt.verify(Utils.decryptText(token), tokenKey, (err: any, authData: any) => {
-                if (err) { rej(err) };
-                res(authData);
-            });
+            res(encript(token));
         });
-    }
-
+    });
 }
 
-export default new Token();
+export async function verifyToken(ctx: Koa.Context, next: any) {
+    try {
+        const bearerHeader = ctx.request.headers['authorization'];
+        if (bearerHeader) {
+            ctx.user = await checkToken(decript(bearerHeader.split(' ')[1]));
+            return await next();
+        }
+        ctx.throw(401);
+    } catch (error) {
+        ctx.throw(error.status || 401, error.message || error);
+    }
+}
+
+export function checkToken(token: any) {
+    return new Promise((res, rej) => {
+        jwt.verify(token, tokenKey, (err: any, authData: any) => {
+            if (err) {
+                rej(err);
+            }
+            res(authData);
+        });
+    });
+}

@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var pg_1 = require("pg");
-var config_1 = require("./../config");
+var config_1 = require("../../config");
 var pool = new pg_1.Pool(config_1.db);
 function executeQuery(query) {
     var _this = this;

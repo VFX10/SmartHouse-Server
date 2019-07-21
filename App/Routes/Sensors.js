@@ -41,11 +41,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var db_1 = require("./Utils/db");
-var query = __importStar(require("./Utils/routes.query"));
-var RegisterSensor = /** @class */ (function () {
-    function RegisterSensor() {
+var db_1 = require("../Utils/db");
+var query = __importStar(require("./routes.query"));
+var Mqtt_1 = __importDefault(require("../Utils/Mqtt"));
+var Sensors = /** @class */ (function () {
+    function Sensors() {
         var _this = this;
         this.register = function (ctx) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -55,9 +59,10 @@ var RegisterSensor = /** @class */ (function () {
                         return [4 /*yield*/, db_1.executeQuery(query.searchSensor(ctx.request.body.macAddress))];
                     case 1:
                         if (!((_a.sent())[0].count == 0)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, db_1.executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.ipAddress))];
+                        return [4 /*yield*/, db_1.executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType))];
                     case 2:
                         _a.sent();
+                        Mqtt_1.default.subscribe(ctx.request.body.sensorName);
                         ctx.body = { success: "sensor saved" };
                         return [3 /*break*/, 4];
                     case 3:
@@ -68,6 +73,21 @@ var RegisterSensor = /** @class */ (function () {
             });
         }); };
     }
-    return RegisterSensor;
+    Sensors.prototype.sendEventToSensor = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var payload;
+            return __generator(this, function (_a) {
+                payload = {
+                    sensorName: ctx.request.body.sensorName,
+                    event: ctx.request.body.event
+                };
+                console.log(JSON.stringify(payload));
+                Mqtt_1.default.publish("SensorsSetingsChannel", JSON.stringify(payload));
+                ctx.body = { success: "event sent successfully" };
+                return [2 /*return*/];
+            });
+        });
+    };
+    return Sensors;
 }());
-exports.default = new RegisterSensor();
+exports.default = new Sensors();

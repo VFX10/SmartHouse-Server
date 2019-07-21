@@ -34,74 +34,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var jwt = __importStar(require("jsonwebtoken"));
-var Utils_1 = __importDefault(require("./Utils"));
-var config_1 = require("./config");
-var Token = /** @class */ (function () {
-    function Token() {
-        var _this = this;
-        this.generateToken = function (data) {
-            if (data.status.StatusMessage == 'Success') {
-                return new Promise(function (res, rej) {
-                    jwt.sign({ branch: data.result[0].Branch, type: data.result[0].Type }, config_1.tokenKey, function (err, token) {
-                        if (err) {
-                            rej(err);
-                        }
-                        res(Utils_1.default.encryptText(token));
-                    });
-                });
+var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var cripting_1 = require("./cripting");
+var config_1 = require("./../config");
+function generateToken(data) {
+    return new Promise(function (res, rej) {
+        jsonwebtoken_1.default.sign(data, config_1.tokenKey, function (err, token) {
+            if (err) {
+                rej(err);
             }
-        };
-        this.verifyToken = function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
-            var bearerHeader, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        bearerHeader = ctx.request.headers['authorization'];
-                        if (!bearerHeader) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.checkToken(bearerHeader.split(' ')[1])];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, next()];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        ctx.status = 401;
-                        _a.label = 4;
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
-                        error_1 = _a.sent();
-                        ctx.status = 401;
-                        return [3 /*break*/, 6];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        }); };
-        this.checkToken = function (token) {
-            return new Promise(function (res, rej) {
-                jwt.verify(Utils_1.default.decryptText(token), config_1.tokenKey, function (err, authData) {
-                    if (err) {
-                        rej(err);
-                    }
-                    ;
-                    res(authData);
-                });
-            });
-        };
-    }
-    return Token;
-}());
-exports.default = new Token();
+            res(cripting_1.encript(token));
+        });
+    });
+}
+exports.generateToken = generateToken;
+function verifyToken(ctx, next) {
+    return __awaiter(this, void 0, void 0, function () {
+        var bearerHeader, _a, error_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 4, , 5]);
+                    bearerHeader = ctx.request.headers['authorization'];
+                    if (!bearerHeader) return [3 /*break*/, 3];
+                    _a = ctx;
+                    return [4 /*yield*/, checkToken(cripting_1.decript(bearerHeader.split(' ')[1]))];
+                case 1:
+                    _a.user = _b.sent();
+                    return [4 /*yield*/, next()];
+                case 2: return [2 /*return*/, _b.sent()];
+                case 3:
+                    ctx.throw(401);
+                    return [3 /*break*/, 5];
+                case 4:
+                    error_1 = _b.sent();
+                    ctx.throw(error_1.status || 401, error_1.message || error_1);
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.verifyToken = verifyToken;
+function checkToken(token) {
+    return new Promise(function (res, rej) {
+        jsonwebtoken_1.default.verify(token, config_1.tokenKey, function (err, authData) {
+            if (err) {
+                rej(err);
+            }
+            res(authData);
+        });
+    });
+}
+exports.checkToken = checkToken;

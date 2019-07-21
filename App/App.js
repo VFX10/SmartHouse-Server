@@ -5,17 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var koa_1 = __importDefault(require("koa"));
 var koa_bodyparser_1 = __importDefault(require("koa-bodyparser"));
-var Routes_1 = require("./Routes");
-var config_1 = require("./config");
-var Mqtt_1 = __importDefault(require("./Utils/Mqtt"));
+var cors_1 = __importDefault(require("@koa/cors"));
+var Routes_1 = require("./Routes/Routes");
+var config_1 = require("../config");
 var App = /** @class */ (function () {
     function App(app) {
         this.app = app;
-        var mqtt = new Mqtt_1.default('192.168.0.112', 1883);
         this.app = new koa_1.default();
         this.app
             .use(koa_bodyparser_1.default({ jsonLimit: '10mb' }))
             .use(Routes_1.router.routes())
+            .use(cors_1.default())
             .use(Routes_1.router.allowedMethods())
             .listen(config_1.port);
         console.log("Running on " + config_1.port + " port!");

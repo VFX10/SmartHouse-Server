@@ -41,61 +41,68 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var mqtt = __importStar(require("mqtt"));
 var db_1 = require("./db");
-var query = __importStar(require("./routes.query"));
-var Time_1 = __importDefault(require("../Time/Time"));
+var query = __importStar(require("./../routes/routes.query"));
+var Time_1 = require("../Time/Time");
+var config_1 = require("../../config");
 var MqttHelpers = /** @class */ (function () {
-    function MqttHelpers(server, port) {
+    function MqttHelpers() {
         var _this = this;
-        var options = {
-            port: port,
-            host: "mqrr://" + server,
-            clientId: 'Hub',
-            clean: true,
-            encoding: 'utf8'
-        };
-        // this.topics = executeQuery(query.getAllSensors()).then((val:any)=>{});
-        this.client = mqtt.connect("mqrr://" + server, options);
+        //executeQuery(query.getAllSensors()).then((val:any) => {
+        this.client = mqtt.connect("mqrr://" + config_1.mqttServerAddress, config_1.mqttOptions);
         this.client.on('connect', function () { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
-                //this.topics.forEach((element: any) => {
-                this.client.subscribe("Office temperature sensor", function (err) {
+                // val.forEach((element: any) => {
+                //console.log(element);
+                this.client.subscribe("SensorsDataChannel", function (err) {
                     if (!err) {
-                        console.log("subscribed to " + "Office temperature sensor");
+                        console.log("successfully subscribed to SensorsDataChannel");
                     }
                     else {
                         console.log(err);
                     }
-                    //});
                 });
+                //  });
+                //})
+                this.client.on('message', function (topic, message) { return __awaiter(_this, void 0, void 0, function () {
+                    var obj, sensorId, e_1;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                _a.trys.push([0, 4, , 5]);
+                                obj = JSON.parse(message.toString());
+                                return [4 /*yield*/, db_1.executeQuery(query.sensorId(obj.macAddress))];
+                            case 1:
+                                sensorId = _a.sent();
+                                if (!sensorId) return [3 /*break*/, 3];
+                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [3 /*break*/, 5];
+                            case 4:
+                                e_1 = _a.sent();
+                                // do nothing
+                                console.error(e_1.message || e_1);
+                                return [3 /*break*/, 5];
+                            case 5: return [2 /*return*/];
+                        }
+                    });
+                }); });
                 return [2 /*return*/];
             });
         }); });
-        this.client.on('message', function (topic, message) { return __awaiter(_this, void 0, void 0, function () {
-            var obj, sensorId;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        obj = JSON.parse(message.toString());
-                        console.log(obj);
-                        return [4 /*yield*/, db_1.executeQuery(query.sensorId(obj.macAddress))];
-                    case 1:
-                        sensorId = _a.sent();
-                        if (!sensorId) return [3 /*break*/, 3];
-                        return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.default.getCurrentDateTime()))];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
-                }
-            });
-        }); });
     }
+    MqttHelpers.prototype.publish = function (topic, message) {
+        this.client.publish(topic, message);
+    };
+    MqttHelpers.prototype.subscribe = function (topic) {
+        this.client.subscribe(topic);
+    };
     return MqttHelpers;
 }());
-exports.default = MqttHelpers;
+var mqttConnection = new MqttHelpers();
+exports.default = mqttConnection;
