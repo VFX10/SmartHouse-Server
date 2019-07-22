@@ -44,7 +44,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mqtt = __importStar(require("mqtt"));
 var db_1 = require("./db");
-var query = __importStar(require("./../routes/routes.query"));
+var query = __importStar(require("./../Routes/routes.query"));
 var Time_1 = require("../Time/Time");
 var config_1 = require("../../config");
 var MqttHelpers = /** @class */ (function () {

@@ -1,6 +1,6 @@
 import KoaRouter from 'koa-router';
 import Sensors from './Sensors';
-import { verifyToken } from '../token';
+import { verifyToken } from './../Token';
 
 
 

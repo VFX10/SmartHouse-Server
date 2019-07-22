@@ -1,6 +1,6 @@
 import * as mqtt from 'mqtt'
 import { executeQuery } from "./db";
-import * as query from './../routes/routes.query';
+import * as query from './../Routes/routes.query';
 import { getCurrentDateTime } from '../Time/Time';
 import { mqttServerAddress, mqttOptions } from '../../config';
 class MqttHelpers {
