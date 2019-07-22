@@ -59,7 +59,7 @@ var Sensors = /** @class */ (function () {
                         return [4 /*yield*/, db_1.executeQuery(query.searchSensor(ctx.request.body.macAddress))];
                     case 1:
                         if (!((_a.sent())[0].count == 0)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, db_1.executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType))];
+                        return [4 /*yield*/, db_1.executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType, ctx.request.body.readingFrequency))];
                     case 2:
                         _a.sent();
                         Mqtt_1.default.subscribe(ctx.request.body.sensorName);
@@ -79,7 +79,8 @@ var Sensors = /** @class */ (function () {
             return __generator(this, function (_a) {
                 payload = {
                     sensorName: ctx.request.body.sensorName,
-                    event: ctx.request.body.event
+                    event: ctx.request.body.event,
+                    config: ctx.request.body.config
                 };
                 console.log(JSON.stringify(payload));
                 Mqtt_1.default.publish("SensorsSetingsChannel", JSON.stringify(payload));

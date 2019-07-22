@@ -7,10 +7,10 @@ function getAllSensors() {
     };
 }
 exports.getAllSensors = getAllSensors;
-function insertSensor(sensorName, macAddress, sensorType) {
+function insertSensor(sensorName, macAddress, sensorType, readingFrequency) {
     return {
-        text: "INSERT INTO \"Sensors\"(\"name\", \"macAddress\", \"sensorType\") VALUES ($1, $2, $3)",
-        values: [sensorName, macAddress, sensorType]
+        text: "INSERT INTO \"Sensors\"(\"name\", \"macAddress\", \"sensorType\", \"readingFrequency\") VALUES ($1, $2, $3, $4)",
+        values: [sensorName, macAddress, sensorType, readingFrequency]
     };
 }
 exports.insertSensor = insertSensor;

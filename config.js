@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.db = {
-    host: 'localhost',
+    host: '192.168.100.52',
     database: 'SmartHouse',
     user: 'postgres',
     port: 5432,
-    password: 'Devconnect2016',
+    password: 'postgres',
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000
 };
-exports.mqttServerAddress = '192.168.0.112';
+exports.mqttServerAddress = '192.168.101.184';
 exports.mqttOptions = {
     port: 1883,
-    host: "mqrr://192.168.0.112",
+    host: "mqrr://192.168.101.184",
     clientId: 'Hub',
     clean: true,
     encoding: 'utf8'

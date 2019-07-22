@@ -7,7 +7,7 @@ class Sensors {
         console.log(ctx.request.body);
 
         if ((await executeQuery(query.searchSensor(ctx.request.body.macAddress)))[0].count == 0) {
-            await executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType));
+            await executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType, ctx.request.body.readingFrequency));
             mqttConnection.subscribe(ctx.request.body.sensorName);
             ctx.body = { success: "sensor saved" };
         } else {
@@ -17,7 +17,8 @@ class Sensors {
     async sendEventToSensor(ctx:any){
         const payload = {
             sensorName: ctx.request.body.sensorName,
-            event: ctx.request.body.event
+            event: ctx.request.body.event,
+            config: ctx.request.body.config
         }
         console.log(JSON.stringify(payload));
         mqttConnection.publish("SensorsSetingsChannel",JSON.stringify(payload));

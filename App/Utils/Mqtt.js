@@ -72,23 +72,26 @@ var MqttHelpers = /** @class */ (function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                _a.trys.push([0, 4, , 5]);
+                                console.log(message.toString());
+                                _a.label = 1;
+                            case 1:
+                                _a.trys.push([1, 5, , 6]);
                                 obj = JSON.parse(message.toString());
                                 return [4 /*yield*/, db_1.executeQuery(query.sensorId(obj.macAddress))];
-                            case 1:
-                                sensorId = _a.sent();
-                                if (!sensorId) return [3 /*break*/, 3];
-                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
                             case 2:
+                                sensorId = _a.sent();
+                                if (!sensorId) return [3 /*break*/, 4];
+                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
+                            case 3:
                                 _a.sent();
-                                _a.label = 3;
-                            case 3: return [3 /*break*/, 5];
-                            case 4:
+                                _a.label = 4;
+                            case 4: return [3 /*break*/, 6];
+                            case 5:
                                 e_1 = _a.sent();
                                 // do nothing
                                 console.error(e_1.message || e_1);
-                                return [3 /*break*/, 5];
-                            case 5: return [2 /*return*/];
+                                return [3 /*break*/, 6];
+                            case 6: return [2 /*return*/];
                         }
                     });
                 }); });
