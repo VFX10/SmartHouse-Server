@@ -50,6 +50,18 @@ var config_1 = require("../../config");
 var MqttHelpers = /** @class */ (function () {
     function MqttHelpers() {
         var _this = this;
+        this.publish = function (topic, message) {
+            // console.log('aici');
+            // console.log({topic, da: "SensorsSetingsChannel"});
+            console.log(topic === "SensorsSetingsChannel");
+            console.log('asd', message);
+            // this.client.publish("SensorsSetingsChannel", `{"macAddress":"68:c6:3a:ac:86:1d","event":"reboot"}`, 2,this.eroare);
+            _this.client.publish("SensorsSetingsChannel", message, 1, function (e) {
+                if (e)
+                    return console.log('aici:', e);
+                console.log('nu ii eroare');
+            });
+        };
         //executeQuery(query.getAllSensors()).then((val:any) => {
         this.client = mqtt.connect("mqrr://" + config_1.mqttServerAddress, config_1.mqttOptions);
         this.client.on('connect', function () { return __awaiter(_this, void 0, void 0, function () {
@@ -60,6 +72,7 @@ var MqttHelpers = /** @class */ (function () {
                 this.client.subscribe("SensorsDataChannel", function (err) {
                     if (!err) {
                         console.log("successfully subscribed to SensorsDataChannel");
+                        //this.client.publish("SensorsSetingsChannel", "salut");
                     }
                     else {
                         console.log(err);
@@ -99,8 +112,8 @@ var MqttHelpers = /** @class */ (function () {
             });
         }); });
     }
-    MqttHelpers.prototype.publish = function (topic, message) {
-        this.client.publish(topic, message);
+    MqttHelpers.prototype.eroare = function (err) {
+        console.error(err);
     };
     MqttHelpers.prototype.subscribe = function (topic) {
         this.client.subscribe(topic);
@@ -108,4 +121,4 @@ var MqttHelpers = /** @class */ (function () {
     return MqttHelpers;
 }());
 var mqttConnection = new MqttHelpers();
-exports.default = mqttConnection;
+exports.mqttConnection = mqttConnection;

@@ -1,6 +1,7 @@
 import { executeQuery } from "../Utils/db";
 import * as query from './routes.query';
-import mqttConnection from '../Utils/Mqtt'
+import {mqttConnection} from './../Utils/Mqtt';
+
 class Sensors {
     constructor() { }
     register = async (ctx: any) => {
@@ -16,7 +17,7 @@ class Sensors {
     }
     async sendEventToSensor(ctx:any){
         const payload = {
-            sensorName: ctx.request.body.sensorName,
+            macAddress: ctx.request.body.macAddress,
             event: ctx.request.body.event,
             config: ctx.request.body.config
         }

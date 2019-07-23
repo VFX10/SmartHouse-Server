@@ -41,13 +41,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var db_1 = require("../Utils/db");
 var query = __importStar(require("./routes.query"));
-var Mqtt_1 = __importDefault(require("../Utils/Mqtt"));
+var Mqtt_1 = require("./../Utils/Mqtt");
 var Sensors = /** @class */ (function () {
     function Sensors() {
         var _this = this;
@@ -62,7 +59,7 @@ var Sensors = /** @class */ (function () {
                         return [4 /*yield*/, db_1.executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType, ctx.request.body.readingFrequency))];
                     case 2:
                         _a.sent();
-                        Mqtt_1.default.subscribe(ctx.request.body.sensorName);
+                        Mqtt_1.mqttConnection.subscribe(ctx.request.body.sensorName);
                         ctx.body = { success: "sensor saved" };
                         return [3 /*break*/, 4];
                     case 3:
@@ -78,12 +75,12 @@ var Sensors = /** @class */ (function () {
             var payload;
             return __generator(this, function (_a) {
                 payload = {
-                    sensorName: ctx.request.body.sensorName,
+                    macAddress: ctx.request.body.macAddress,
                     event: ctx.request.body.event,
                     config: ctx.request.body.config
                 };
                 console.log(JSON.stringify(payload));
-                Mqtt_1.default.publish("SensorsSetingsChannel", JSON.stringify(payload));
+                Mqtt_1.mqttConnection.publish("SensorsSetingsChannel", JSON.stringify(payload));
                 ctx.body = { success: "event sent successfully" };
                 return [2 /*return*/];
             });
