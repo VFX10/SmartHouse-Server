@@ -10,6 +10,12 @@ export function insertSensor(sensorName: string, macAddress:string, sensorType: 
         values:  [sensorName, macAddress, sensorType, readingFrequency]
     }
 }
+export function updateSensor(sensorName: string, macAddress:string, sensorType: string, readingFrequency:number) {
+    return {
+        text: `UPDATE "Sensors" SET name = $1, "sensorType" = $2, "readingFrequency" = $3 WHERE "macAddress" = $4`,
+        values:  [sensorName, sensorType, readingFrequency, macAddress]
+    }
+}
 export function searchSensor(macAddress:string) {
     return {
         text: `SELECT count(*) FROM "Sensors" WHERE "macAddress" = $1`,

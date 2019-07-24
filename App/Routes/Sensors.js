@@ -34,41 +34,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var db_1 = require("../Utils/db");
-var query = __importStar(require("./routes.query"));
 var Mqtt_1 = require("./../Utils/Mqtt");
 var Sensors = /** @class */ (function () {
     function Sensors() {
-        var _this = this;
-        this.register = function (ctx) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log(ctx.request.body);
-                        return [4 /*yield*/, db_1.executeQuery(query.searchSensor(ctx.request.body.macAddress))];
-                    case 1:
-                        if (!((_a.sent())[0].count == 0)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, db_1.executeQuery(query.insertSensor(ctx.request.body.sensorName, ctx.request.body.macAddress, ctx.request.body.sensorType, ctx.request.body.readingFrequency))];
-                    case 2:
-                        _a.sent();
-                        Mqtt_1.mqttConnection.subscribe(ctx.request.body.sensorName);
-                        ctx.body = { success: "sensor saved" };
-                        return [3 /*break*/, 4];
-                    case 3:
-                        ctx.body = { success: "sensor already exist" };
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); };
     }
     Sensors.prototype.sendEventToSensor = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {

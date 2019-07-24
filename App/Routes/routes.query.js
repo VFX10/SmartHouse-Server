@@ -14,6 +14,13 @@ function insertSensor(sensorName, macAddress, sensorType, readingFrequency) {
     };
 }
 exports.insertSensor = insertSensor;
+function updateSensor(sensorName, macAddress, sensorType, readingFrequency) {
+    return {
+        text: "UPDATE \"Sensors\" SET name = $1, \"sensorType\" = $2, \"readingFrequency\" = $3 WHERE \"macAddress\" = $4",
+        values: [sensorName, sensorType, readingFrequency, macAddress]
+    };
+}
+exports.updateSensor = updateSensor;
 function searchSensor(macAddress) {
     return {
         text: "SELECT count(*) FROM \"Sensors\" WHERE \"macAddress\" = $1",

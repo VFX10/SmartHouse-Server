@@ -9,7 +9,6 @@ export { router };
 
 
 router
-    .post("/registerSensor", Sensors.register)
     .post("/sendEventToSensor", Sensors.sendEventToSensor)
     .use(verifyToken)
     // .post("/recordSensorData", SensorData.recordSensorData)

@@ -13,10 +13,10 @@ class MqttHelpers {
         this.client.on('connect', async () => {
             // val.forEach((element: any) => {
             //console.log(element);
-            this.client.subscribe("SensorsDataChannel", (err: any) => {
+            this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel'], (err: any) => {
                 if (!err) {
                     console.log("successfully subscribed to SensorsDataChannel");
-                    //this.client.publish("SensorsSetingsChannel", "salut");
+                    console.log("successfully subscribed to SensorsConfigChannel");
                 }
                 else {
                     console.log(err);
@@ -27,24 +27,42 @@ class MqttHelpers {
             //})
 
             this.client.on('message', async (topic: any, message: any) => {
-                console.log(message.toString());
-                try {
-                    let obj = JSON.parse(message.toString());
-                    let sensorId = await executeQuery(query.sensorId(obj.macAddress));
-                    if (sensorId) {
-                        await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
-                    }
-                } catch (e) {
-                    // do nothing
-                    console.error(e.message || e);
+                switch (topic) {
+                    case 'SensorsConfigChannel':
+                        try{
+                            let obj = JSON.parse(message.toString());
+                            if ((await executeQuery(query.searchSensor(obj.macAddress)))[0].count == 0) {
+                                await executeQuery(query.insertSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency));
+                            } else {
+                                console.log("here");
+                                await executeQuery(query.updateSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency));
+                            }
+                        } catch (e){ }
+
+                        break;
+                    case 'SensorsDataChannel':
+                        try {
+                            let obj = JSON.parse(message.toString());
+                            let sensorId = await executeQuery(query.sensorId(obj.macAddress));
+                            if (sensorId) {
+                                await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
+                            }
+                        } catch (e) {
+                            // do nothing
+                            console.error(e.message || e);
+                        }
+                        break;
+                    default:
+                        console.warn(`${topic} doesn't exist`);
                 }
+
 
 
             })
         });
 
     }
-    eroare(err:any){
+    eroare(err: any) {
         console.error(err);
     }
     publish = (topic: string, message: string) => {
