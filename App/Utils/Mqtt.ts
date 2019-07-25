@@ -13,7 +13,7 @@ class MqttHelpers {
         this.client.on('connect', async () => {
             // val.forEach((element: any) => {
             //console.log(element);
-            this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel'], (err: any) => {
+            this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel', 'response'], (err: any) => {
                 if (!err) {
                     console.log("successfully subscribed to SensorsDataChannel");
                     console.log("successfully subscribed to SensorsConfigChannel");
@@ -28,6 +28,9 @@ class MqttHelpers {
 
             this.client.on('message', async (topic: any, message: any) => {
                 switch (topic) {
+                    case 'response':
+                            console.log(message.toString());
+                    break;
                     case 'SensorsConfigChannel':
                         try{
                             let obj = JSON.parse(message.toString());
@@ -71,10 +74,7 @@ class MqttHelpers {
         console.log(topic === "SensorsSetingsChannel");
         console.log('asd', message);
         // this.client.publish("SensorsSetingsChannel", `{"macAddress":"68:c6:3a:ac:86:1d","event":"reboot"}`, 2,this.eroare);
-        this.client.publish("SensorsSetingsChannel", message, 1, (e: any) => {
-            if (e) return console.log('aici:', e);
-            console.log('nu ii eroare');
-        });
+        this.client.publish("SensorsSetingsChannel", message);
     }
     subscribe(topic: string) {
         this.client.subscribe(topic);

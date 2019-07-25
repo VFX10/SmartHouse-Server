@@ -56,11 +56,7 @@ var MqttHelpers = /** @class */ (function () {
             console.log(topic === "SensorsSetingsChannel");
             console.log('asd', message);
             // this.client.publish("SensorsSetingsChannel", `{"macAddress":"68:c6:3a:ac:86:1d","event":"reboot"}`, 2,this.eroare);
-            _this.client.publish("SensorsSetingsChannel", message, 1, function (e) {
-                if (e)
-                    return console.log('aici:', e);
-                console.log('nu ii eroare');
-            });
+            _this.client.publish("SensorsSetingsChannel", message);
         };
         //executeQuery(query.getAllSensors()).then((val:any) => {
         this.client = mqtt.connect("mqrr://" + config_1.mqttServerAddress, config_1.mqttOptions);
@@ -69,7 +65,7 @@ var MqttHelpers = /** @class */ (function () {
             return __generator(this, function (_a) {
                 // val.forEach((element: any) => {
                 //console.log(element);
-                this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel'], function (err) {
+                this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel', 'response'], function (err) {
                     if (!err) {
                         console.log("successfully subscribed to SensorsDataChannel");
                         console.log("successfully subscribed to SensorsConfigChannel");
@@ -87,53 +83,57 @@ var MqttHelpers = /** @class */ (function () {
                             case 0:
                                 _a = topic;
                                 switch (_a) {
-                                    case 'SensorsConfigChannel': return [3 /*break*/, 1];
-                                    case 'SensorsDataChannel': return [3 /*break*/, 9];
+                                    case 'response': return [3 /*break*/, 1];
+                                    case 'SensorsConfigChannel': return [3 /*break*/, 2];
+                                    case 'SensorsDataChannel': return [3 /*break*/, 10];
                                 }
-                                return [3 /*break*/, 15];
+                                return [3 /*break*/, 16];
                             case 1:
-                                _b.trys.push([1, 7, , 8]);
+                                console.log(message.toString());
+                                return [3 /*break*/, 17];
+                            case 2:
+                                _b.trys.push([2, 8, , 9]);
                                 obj = JSON.parse(message.toString());
                                 return [4 /*yield*/, db_1.executeQuery(query.searchSensor(obj.macAddress))];
-                            case 2:
-                                if (!((_b.sent())[0].count == 0)) return [3 /*break*/, 4];
-                                return [4 /*yield*/, db_1.executeQuery(query.insertSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency))];
                             case 3:
-                                _b.sent();
-                                return [3 /*break*/, 6];
+                                if (!((_b.sent())[0].count == 0)) return [3 /*break*/, 5];
+                                return [4 /*yield*/, db_1.executeQuery(query.insertSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency))];
                             case 4:
+                                _b.sent();
+                                return [3 /*break*/, 7];
+                            case 5:
                                 console.log("here");
                                 return [4 /*yield*/, db_1.executeQuery(query.updateSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency))];
-                            case 5:
+                            case 6:
                                 _b.sent();
-                                _b.label = 6;
-                            case 6: return [3 /*break*/, 8];
-                            case 7:
+                                _b.label = 7;
+                            case 7: return [3 /*break*/, 9];
+                            case 8:
                                 e_1 = _b.sent();
-                                return [3 /*break*/, 8];
-                            case 8: return [3 /*break*/, 16];
-                            case 9:
-                                _b.trys.push([9, 13, , 14]);
+                                return [3 /*break*/, 9];
+                            case 9: return [3 /*break*/, 17];
+                            case 10:
+                                _b.trys.push([10, 14, , 15]);
                                 obj = JSON.parse(message.toString());
                                 return [4 /*yield*/, db_1.executeQuery(query.sensorId(obj.macAddress))];
-                            case 10:
-                                sensorId = _b.sent();
-                                if (!sensorId) return [3 /*break*/, 12];
-                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
                             case 11:
+                                sensorId = _b.sent();
+                                if (!sensorId) return [3 /*break*/, 13];
+                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
+                            case 12:
                                 _b.sent();
-                                _b.label = 12;
-                            case 12: return [3 /*break*/, 14];
-                            case 13:
+                                _b.label = 13;
+                            case 13: return [3 /*break*/, 15];
+                            case 14:
                                 e_2 = _b.sent();
                                 // do nothing
                                 console.error(e_2.message || e_2);
-                                return [3 /*break*/, 14];
-                            case 14: return [3 /*break*/, 16];
-                            case 15:
+                                return [3 /*break*/, 15];
+                            case 15: return [3 /*break*/, 17];
+                            case 16:
                                 console.warn(topic + " doesn't exist");
-                                _b.label = 16;
-                            case 16: return [2 /*return*/];
+                                _b.label = 17;
+                            case 17: return [2 /*return*/];
                         }
                     });
                 }); });
