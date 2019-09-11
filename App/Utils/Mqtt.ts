@@ -34,10 +34,11 @@ class MqttHelpers {
                     case 'SensorsConfigChannel':
                         try{
                             let obj = JSON.parse(message.toString());
+                            console.log(obj);
                             if ((await executeQuery(query.searchSensor(obj.macAddress)))[0].count == 0) {
                                 await executeQuery(query.insertSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency));
                             } else {
-                                console.log("here");
+                                console.log("update sensor information");
                                 await executeQuery(query.updateSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency));
                             }
                         } catch (e){ }
@@ -69,11 +70,6 @@ class MqttHelpers {
         console.error(err);
     }
     publish = (topic: string, message: string) => {
-        // console.log('aici');
-        // console.log({topic, da: "SensorsSetingsChannel"});
-        console.log(topic === "SensorsSetingsChannel");
-        console.log('asd', message);
-        // this.client.publish("SensorsSetingsChannel", `{"macAddress":"68:c6:3a:ac:86:1d","event":"reboot"}`, 2,this.eroare);
         this.client.publish("SensorsSetingsChannel", message);
     }
     subscribe(topic: string) {

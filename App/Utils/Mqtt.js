@@ -51,11 +51,6 @@ var MqttHelpers = /** @class */ (function () {
     function MqttHelpers() {
         var _this = this;
         this.publish = function (topic, message) {
-            // console.log('aici');
-            // console.log({topic, da: "SensorsSetingsChannel"});
-            console.log(topic === "SensorsSetingsChannel");
-            console.log('asd', message);
-            // this.client.publish("SensorsSetingsChannel", `{"macAddress":"68:c6:3a:ac:86:1d","event":"reboot"}`, 2,this.eroare);
             _this.client.publish("SensorsSetingsChannel", message);
         };
         //executeQuery(query.getAllSensors()).then((val:any) => {
@@ -94,6 +89,7 @@ var MqttHelpers = /** @class */ (function () {
                             case 2:
                                 _b.trys.push([2, 8, , 9]);
                                 obj = JSON.parse(message.toString());
+                                console.log(obj);
                                 return [4 /*yield*/, db_1.executeQuery(query.searchSensor(obj.macAddress))];
                             case 3:
                                 if (!((_b.sent())[0].count == 0)) return [3 /*break*/, 5];
@@ -102,7 +98,7 @@ var MqttHelpers = /** @class */ (function () {
                                 _b.sent();
                                 return [3 /*break*/, 7];
                             case 5:
-                                console.log("here");
+                                console.log("update sensor information");
                                 return [4 /*yield*/, db_1.executeQuery(query.updateSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency))];
                             case 6:
                                 _b.sent();
