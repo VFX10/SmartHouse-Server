@@ -6,9 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var koa_router_1 = __importDefault(require("koa-router"));
 var Sensors_1 = __importDefault(require("./Sensors"));
 var Token_1 = require("./../Token");
+var Register_1 = __importDefault(require("./Register/Register"));
+var Login_1 = __importDefault(require("./Login/Login"));
+var House_1 = __importDefault(require("./Add/House/House"));
 var router = new koa_router_1.default({ prefix: '/api' });
 exports.router = router;
 router
     .post("/sendEventToSensor", Sensors_1.default.sendEventToSensor)
+    .post("/register", Register_1.default.registerUser)
+    .post("/login", Login_1.default.loginUser)
+    .get('/checkEmail', Register_1.default.checkEmail)
+    .post('/add/house', House_1.default.addHouse)
+    .post('/add/room', House_1.default.addHouse)
     .use(Token_1.verifyToken);
 // .post("/recordSensorData", SensorData.recordSensorData)

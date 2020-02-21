@@ -35,30 +35,50 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Mqtt_1 = __importDefault(require("./../Utils/Mqtt"));
-var Sensors = /** @class */ (function () {
-    function Sensors() {
+var db_1 = require("../../../Utils/db");
+var query = __importStar(require("../../../Routes/routes.query"));
+var Login = /** @class */ (function () {
+    function Login() {
     }
-    Sensors.prototype.sendEventToSensor = function (ctx) {
+    Login.prototype.addHouse = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {
-            var payload;
             return __generator(this, function (_a) {
-                payload = {
-                    macAddress: ctx.request.body.macAddress,
-                    event: ctx.request.body.event,
-                    config: ctx.request.body.config
-                };
-                console.log(JSON.stringify(payload));
-                Mqtt_1.default.mqttConnection.publish("SensorsSettingsChannel", JSON.stringify(payload));
-                ctx.body = { success: "event sent successfully" };
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        if (!(ctx.request.body.houseName &&
+                            ctx.request.body.country &&
+                            ctx.request.body.county &&
+                            ctx.request.body.locality &&
+                            ctx.request.body.street &&
+                            ctx.request.body.number)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.addHouse(ctx.request.body))];
+                    case 1:
+                        if ((_a.sent())[0].AddHouse) {
+                            ctx.body = { success: "House added Successfully" };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: "User doesn\'t exist" };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
             });
         });
     };
-    return Sensors;
+    return Login;
 }());
-exports.default = new Sensors();
+exports.default = new Login();

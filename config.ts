@@ -8,13 +8,15 @@ export const db = {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000
 }
-export const mqttServerAddress = '192.168.101.184';
+export const mqttServerAddress = '192.168.0.118';
 export const mqttOptions = {
     port: 1883,
-    host: `mqrr://192.168.101.184`,
+    host: `mqrr://192.168.0.118`,
     clientId: 'Hub',
     clean: true,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    username: 'matteo',
+    password: '1234'
 };
 export const port = process.env.PORT || 8000;
 

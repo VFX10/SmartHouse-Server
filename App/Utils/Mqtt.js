@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -45,13 +46,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mqtt = __importStar(require("mqtt"));
 var db_1 = require("./db");
 var query = __importStar(require("./../Routes/routes.query"));
-var Time_1 = require("../Time/Time");
 var config_1 = require("../../config");
 var MqttHelpers = /** @class */ (function () {
     function MqttHelpers() {
         var _this = this;
         this.publish = function (topic, message) {
-            _this.client.publish("SensorsSetingsChannel", message);
+            _this.client.publish(topic, message);
         };
         //executeQuery(query.getAllSensors()).then((val:any) => {
         this.client = mqtt.connect("mqrr://" + config_1.mqttServerAddress, config_1.mqttOptions);
@@ -64,6 +64,7 @@ var MqttHelpers = /** @class */ (function () {
                     if (!err) {
                         console.log("successfully subscribed to SensorsDataChannel");
                         console.log("successfully subscribed to SensorsConfigChannel");
+                        console.log("successfully subscribed to response");
                     }
                     else {
                         console.log(err);
@@ -72,7 +73,7 @@ var MqttHelpers = /** @class */ (function () {
                 //  });
                 //})
                 this.client.on('message', function (topic, message) { return __awaiter(_this, void 0, void 0, function () {
-                    var _a, obj, e_1, obj, sensorId, e_2;
+                    var _a, obj, e_1, obj;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
@@ -82,10 +83,10 @@ var MqttHelpers = /** @class */ (function () {
                                     case 'SensorsConfigChannel': return [3 /*break*/, 2];
                                     case 'SensorsDataChannel': return [3 /*break*/, 10];
                                 }
-                                return [3 /*break*/, 16];
+                                return [3 /*break*/, 11];
                             case 1:
                                 console.log(message.toString());
-                                return [3 /*break*/, 17];
+                                return [3 /*break*/, 12];
                             case 2:
                                 _b.trys.push([2, 8, , 9]);
                                 obj = JSON.parse(message.toString());
@@ -107,29 +108,25 @@ var MqttHelpers = /** @class */ (function () {
                             case 8:
                                 e_1 = _b.sent();
                                 return [3 /*break*/, 9];
-                            case 9: return [3 /*break*/, 17];
+                            case 9: return [3 /*break*/, 12];
                             case 10:
-                                _b.trys.push([10, 14, , 15]);
-                                obj = JSON.parse(message.toString());
-                                return [4 /*yield*/, db_1.executeQuery(query.sensorId(obj.macAddress))];
+                                try {
+                                    console.info(message.toString());
+                                    obj = JSON.parse(message.toString());
+                                    // let sensorId = await executeQuery(query.sensorId(obj.macAddress));
+                                    // if (sensorId) {
+                                    //     await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
+                                    // }
+                                }
+                                catch (e) {
+                                    // do nothing
+                                    console.error(e.message || e);
+                                }
+                                return [3 /*break*/, 12];
                             case 11:
-                                sensorId = _b.sent();
-                                if (!sensorId) return [3 /*break*/, 13];
-                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
-                            case 12:
-                                _b.sent();
-                                _b.label = 13;
-                            case 13: return [3 /*break*/, 15];
-                            case 14:
-                                e_2 = _b.sent();
-                                // do nothing
-                                console.error(e_2.message || e_2);
-                                return [3 /*break*/, 15];
-                            case 15: return [3 /*break*/, 17];
-                            case 16:
                                 console.warn(topic + " doesn't exist");
-                                _b.label = 17;
-                            case 17: return [2 /*return*/];
+                                _b.label = 12;
+                            case 12: return [2 /*return*/];
                         }
                     });
                 }); });
@@ -146,4 +143,4 @@ var MqttHelpers = /** @class */ (function () {
     return MqttHelpers;
 }());
 var mqttConnection = new MqttHelpers();
-exports.mqttConnection = mqttConnection;
+exports.default = { mqttConnection: mqttConnection };

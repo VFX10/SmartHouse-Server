@@ -17,6 +17,7 @@ class MqttHelpers {
                 if (!err) {
                     console.log("successfully subscribed to SensorsDataChannel");
                     console.log("successfully subscribed to SensorsConfigChannel");
+                    console.log("successfully subscribed to response");
                 }
                 else {
                     console.log(err);
@@ -29,10 +30,10 @@ class MqttHelpers {
             this.client.on('message', async (topic: any, message: any) => {
                 switch (topic) {
                     case 'response':
-                            console.log(message.toString());
-                    break;
+                        console.log(message.toString());
+                        break;
                     case 'SensorsConfigChannel':
-                        try{
+                        try {
                             let obj = JSON.parse(message.toString());
                             console.log(obj);
                             if ((await executeQuery(query.searchSensor(obj.macAddress)))[0].count == 0) {
@@ -41,16 +42,17 @@ class MqttHelpers {
                                 console.log("update sensor information");
                                 await executeQuery(query.updateSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency));
                             }
-                        } catch (e){ }
+                        } catch (e) { }
 
                         break;
                     case 'SensorsDataChannel':
                         try {
+                            console.info(message.toString());
                             let obj = JSON.parse(message.toString());
-                            let sensorId = await executeQuery(query.sensorId(obj.macAddress));
-                            if (sensorId) {
-                                await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
-                            }
+                            // let sensorId = await executeQuery(query.sensorId(obj.macAddress));
+                            // if (sensorId) {
+                            //     await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
+                            // }
                         } catch (e) {
                             // do nothing
                             console.error(e.message || e);
@@ -70,7 +72,7 @@ class MqttHelpers {
         console.error(err);
     }
     publish = (topic: string, message: string) => {
-        this.client.publish("SensorsSetingsChannel", message);
+        this.client.publish(topic, message);
     }
     subscribe(topic: string) {
         this.client.subscribe(topic);
@@ -79,4 +81,4 @@ class MqttHelpers {
 
 const mqttConnection = new MqttHelpers();
 
-export { mqttConnection };
+export default { mqttConnection };
