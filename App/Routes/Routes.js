@@ -9,6 +9,7 @@ var Token_1 = require("./../Token");
 var Register_1 = __importDefault(require("./Register/Register"));
 var Login_1 = __importDefault(require("./Login/Login"));
 var House_1 = __importDefault(require("./Add/House/House"));
+var Room_1 = __importDefault(require("./Add/Room/Room"));
 var router = new koa_router_1.default({ prefix: '/api' });
 exports.router = router;
 router
@@ -17,6 +18,6 @@ router
     .post("/login", Login_1.default.loginUser)
     .get('/checkEmail', Register_1.default.checkEmail)
     .post('/add/house', House_1.default.addHouse)
-    .post('/add/room', House_1.default.addHouse)
+    .post('/add/room', Room_1.default.addRoom)
     .use(Token_1.verifyToken);
 // .post("/recordSensorData", SensorData.recordSensorData)

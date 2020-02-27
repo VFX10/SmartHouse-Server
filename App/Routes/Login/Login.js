@@ -55,13 +55,13 @@ var Login = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        console.log(ctx.request.body);
                         if (!(ctx.request.body.email &&
                             ctx.request.body.password)) return [3 /*break*/, 2];
                         return [4 /*yield*/, db_1.executeQuery(query.loginUser(ctx.request.body))];
                     case 1:
                         response = (_a.sent())[0];
                         if (response.LoginUser.email) {
-                            console.log('aici');
                             token = jwt.sign({ email: ctx.request.body.email }, 'privateKey');
                             console.log(token);
                             ctx.body = {

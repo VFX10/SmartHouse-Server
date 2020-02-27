@@ -56,13 +56,15 @@ export function loginUser(userData: any) {
 export function addHouse(houseData: any) {
     return {
         text: `SELECT "AddHouse"($1, $2, $3);`,
-        values: [houseData.houseName, `${houseData.country}, ${houseData.county}, ${houseData.locality}, ${houseData.street}, ${houseData.number}`, houseData.userEmail]
+        values: [houseData.houseName,
+        `${houseData.country}, ${houseData.county}, ${houseData.locality}, ${houseData.street},
+             ${houseData.number}`, houseData.userEmail]
     }
 }
 export function addRoom(houseData: any) {
     return {
-        text: `SELECT "AddHouse"($1, $2, $3);`,
-        values: [houseData.houseName, `${houseData.country}, ${houseData.county}, ${houseData.locality}, ${houseData.street}, ${houseData.number}`, houseData.userEmail]
+        text: `SELECT "AddRoom"($1, $2);`,
+        values: [houseData.roomName, houseData.houseId]
     }
 }
 

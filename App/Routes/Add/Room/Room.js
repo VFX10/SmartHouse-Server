@@ -50,18 +50,24 @@ var Room = /** @class */ (function () {
     }
     Room.prototype.addRoom = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {
+            var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!ctx.request.body.roomName) return [3 /*break*/, 2];
+                        if (!(ctx.request.body.roomName && ctx.request.body.houseId)) return [3 /*break*/, 2];
                         return [4 /*yield*/, db_1.executeQuery(query.addRoom(ctx.request.body))];
                     case 1:
-                        if ((_a.sent())[0].AddHouse) {
-                            ctx.body = { success: "Room added Successfully" };
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].AddRoom) {
+                            ctx.body = {
+                                success: "Room added Successfully",
+                                data: data[0].AddRoom
+                            };
                             ctx.status = 200;
                         }
                         else {
-                            ctx.body = { error: "User doesn\'t exist" };
+                            ctx.body = { error: "House doesn\'t exist" };
                             ctx.status = 500;
                         }
                         return [3 /*break*/, 3];

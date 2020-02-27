@@ -10,8 +10,13 @@ class Login {
             ctx.request.body.locality &&
             ctx.request.body.street &&
             ctx.request.body.number) {
-            if ((await executeQuery(query.addHouse(ctx.request.body)))[0].AddHouse) {
-                ctx.body = { success: "House added Successfully" };
+            const data = await executeQuery(query.addHouse(ctx.request.body));
+            console.log(data);
+            if (data[0].AddHouse) {
+                ctx.body = {
+                    success: "House added Successfully",
+                    house: data[0].AddHouse
+                };
                 ctx.status = 200;
             } else {
                 ctx.body = { error: "User doesn\'t exist" };

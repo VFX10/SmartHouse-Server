@@ -50,6 +50,7 @@ var Login = /** @class */ (function () {
     }
     Login.prototype.addHouse = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {
+            var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -61,8 +62,13 @@ var Login = /** @class */ (function () {
                             ctx.request.body.number)) return [3 /*break*/, 2];
                         return [4 /*yield*/, db_1.executeQuery(query.addHouse(ctx.request.body))];
                     case 1:
-                        if ((_a.sent())[0].AddHouse) {
-                            ctx.body = { success: "House added Successfully" };
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].AddHouse) {
+                            ctx.body = {
+                                success: "House added Successfully",
+                                house: data[0].AddHouse
+                            };
                             ctx.status = 200;
                         }
                         else {

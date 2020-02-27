@@ -4,6 +4,7 @@ import { verifyToken } from './../Token';
 import Register from './Register/Register';
 import Login from './Login/Login';
 import House from './Add/House/House';
+import Room from './Add/Room/Room';
 
 
 
@@ -17,6 +18,6 @@ router
     .post("/login", Login.loginUser)
     .get('/checkEmail', Register.checkEmail)
     .post('/add/house', House.addHouse)
-    .post('/add/room', House.addHouse)
+    .post('/add/room', Room.addRoom)
     .use(verifyToken)
     // .post("/recordSensorData", SensorData.recordSensorData)

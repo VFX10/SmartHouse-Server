@@ -4,12 +4,18 @@ import * as query from '../../../Routes/routes.query';
 class Room {
     constructor() { }
     async addRoom(ctx: any) {
-        if (ctx.request.body.roomName) {
-            if ((await executeQuery(query.addRoom(ctx.request.body)))[0].AddHouse) {
-                ctx.body = { success: "Room added Successfully" };
+        if (ctx.request.body.roomName && ctx.request.body.houseId) {
+            const data = await executeQuery(query.addRoom(ctx.request.body));
+            console.log(data);
+
+            if (data[0].AddRoom) {
+                ctx.body = {
+                    success: "Room added Successfully",
+                    data: data[0].AddRoom
+                };
                 ctx.status = 200;
             } else {
-                ctx.body = { error: "User doesn\'t exist" };
+                ctx.body = { error: "House doesn\'t exist" };
                 ctx.status = 500;
             }
 
@@ -19,4 +25,4 @@ class Room {
         }
     }
 }
-export default new Room();
+export default new Room(); 

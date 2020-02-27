@@ -6,11 +6,12 @@ class Login {
     constructor() { }
     async loginUser(ctx: any) {
 
+        console.log(ctx.request.body);
         if (ctx.request.body.email &&
             ctx.request.body.password) {
             const response = (await executeQuery(query.loginUser(ctx.request.body)))[0];
             if (response.LoginUser.email) {
-                console.log('aici');
+
                 var token = jwt.sign({ email: ctx.request.body.email }, 'privateKey');
                 console.log(token);
                 ctx.body = {

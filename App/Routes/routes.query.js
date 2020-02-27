@@ -66,14 +66,15 @@ exports.loginUser = loginUser;
 function addHouse(houseData) {
     return {
         text: "SELECT \"AddHouse\"($1, $2, $3);",
-        values: [houseData.houseName, houseData.country + ", " + houseData.county + ", " + houseData.locality + ", " + houseData.street + ", " + houseData.number, houseData.userEmail]
+        values: [houseData.houseName,
+            houseData.country + ", " + houseData.county + ", " + houseData.locality + ", " + houseData.street + ",\n             " + houseData.number, houseData.userEmail]
     };
 }
 exports.addHouse = addHouse;
 function addRoom(houseData) {
     return {
-        text: "SELECT \"AddHouse\"($1, $2, $3);",
-        values: [houseData.houseName, houseData.country + ", " + houseData.county + ", " + houseData.locality + ", " + houseData.street + ", " + houseData.number, houseData.userEmail]
+        text: "SELECT \"AddRoom\"($1, $2);",
+        values: [houseData.roomName, houseData.houseId]
     };
 }
 exports.addRoom = addRoom;
