@@ -14,7 +14,7 @@ exports.mqttServerAddress = '192.168.0.118';
 exports.mqttOptions = {
     port: 1883,
     host: "mqrr://192.168.0.118",
-    clientId: 'Hub',
+    clientId: '{"name" : "Hub"}',
     clean: true,
     encoding: 'utf8',
     username: 'matteo',

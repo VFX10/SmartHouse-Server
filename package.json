@@ -37,6 +37,7 @@
     "mqtt-connection": "^4.0.0",
     "mssql": "^5.0.2",
     "nodemailer": "^5.1.1",
+    "nodemon": "^2.0.2",
     "pg": "^7.11.0"
   }
 }

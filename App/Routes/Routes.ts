@@ -17,7 +17,11 @@ router
     .post("/register", Register.registerUser)
     .post("/login", Login.loginUser)
     .get('/checkEmail', Register.checkEmail)
+    .get('/getSensorLastStatus', Sensors.getSensorLastState)
     .post('/add/house', House.addHouse)
     .post('/add/room', Room.addRoom)
+    .post('/add/sensor', Sensors.addSensor)
+    .post('/remove/sensorFromRoom', Sensors.removeSensorFromRoom)
     .use(verifyToken)
+
     // .post("/recordSensorData", SensorData.recordSensorData)

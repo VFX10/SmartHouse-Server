@@ -38,8 +38,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var Mqtt_1 = __importDefault(require("./../Utils/Mqtt"));
+var db_1 = require("../Utils/db");
+var query = __importStar(require("./../Routes/routes.query"));
 var Sensors = /** @class */ (function () {
     function Sensors() {
     }
@@ -47,15 +56,130 @@ var Sensors = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var payload;
             return __generator(this, function (_a) {
-                payload = {
-                    macAddress: ctx.request.body.macAddress,
-                    event: ctx.request.body.event,
-                    config: ctx.request.body.config
-                };
-                console.log(JSON.stringify(payload));
-                Mqtt_1.default.mqttConnection.publish("SensorsSettingsChannel", JSON.stringify(payload));
-                ctx.body = { success: "event sent successfully" };
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        payload = {
+                            macAddress: ctx.request.body.macAddress,
+                            event: ctx.request.body.event,
+                            config: ctx.request.body.config
+                        };
+                        console.log('aaaa', JSON.stringify(payload));
+                        return [4 /*yield*/, Mqtt_1.default.mqttConnection.publish("SensorsSettingsChannel", JSON.stringify(payload))];
+                    case 1:
+                        _a.sent();
+                        ctx.body = { success: "event sent successfully" };
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.getSensorLastState = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log('query', ctx.request.query);
+                        if (!ctx.request.query.macAddress) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.getSensorLastState(ctx.request.query))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        ctx.status = 200;
+                        ctx.body = data[0].row_to_json;
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.addSensor = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.body;
+                        console.log(obj);
+                        if (!(obj.sensorName &&
+                            obj.sensorType &&
+                            obj.roomId &&
+                            obj.macAddress &&
+                            obj.readingFrequency)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.addSensor(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].AddSensor) {
+                            ctx.body = {
+                                success: "Sensor added Successfully",
+                                sensor: data[0].AddSensor
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: "Room doesn\'t exist" };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.removeSensorFromRoom = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.body;
+                        console.log(obj);
+                        if (!obj.macAddress) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.removeSensorFromRoom(obj.macAddress))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].RemoveSensorFromRoom) {
+                            if ('response' in data[0].RemoveSensorFromRoom) {
+                                ctx.body = {
+                                    success: data[0].RemoveSensorFromRoom.response == true ?
+                                        'Device removed successfully' : 'Device cannot be removed',
+                                };
+                                ctx.status = 200;
+                            }
+                            else if (data[0].RemoveSensorFromRoom.error) {
+                                ctx.body = {
+                                    error: data[0].RemoveSensorFromRoom.error,
+                                };
+                                ctx.status = 200;
+                            }
+                            else {
+                                ctx.body = {
+                                    error: "Unexpected error",
+                                };
+                                ctx.status = 500;
+                            }
+                        }
+                        else {
+                            ctx.body = { error: 'Database error' };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
             });
         });
     };

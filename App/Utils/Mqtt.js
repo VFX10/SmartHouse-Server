@@ -46,6 +46,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mqtt = __importStar(require("mqtt"));
 var db_1 = require("./db");
 var query = __importStar(require("./../Routes/routes.query"));
+var Time_1 = require("../Time/Time");
 var config_1 = require("../../config");
 var MqttHelpers = /** @class */ (function () {
     function MqttHelpers() {
@@ -60,20 +61,21 @@ var MqttHelpers = /** @class */ (function () {
             return __generator(this, function (_a) {
                 // val.forEach((element: any) => {
                 //console.log(element);
-                this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel', 'response'], function (err) {
+                this.client.subscribe(["SensorsDataChannel", 'SensorsConfigChannel', 'SensorsStatusChannel', 'response'], function (err) {
                     if (!err) {
                         console.log("successfully subscribed to SensorsDataChannel");
                         console.log("successfully subscribed to SensorsConfigChannel");
+                        console.log("successfully subscribed to SensorsStatusChannel");
                         console.log("successfully subscribed to response");
                     }
                     else {
                         console.log(err);
                     }
                 });
-                //  });
-                //})
+                //  }); 
+                //}) 
                 this.client.on('message', function (topic, message) { return __awaiter(_this, void 0, void 0, function () {
-                    var _a, obj, e_1, obj;
+                    var _a, obj, e_1, obj, sensorId, e_2, obj, e_3;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
@@ -82,11 +84,12 @@ var MqttHelpers = /** @class */ (function () {
                                     case 'response': return [3 /*break*/, 1];
                                     case 'SensorsConfigChannel': return [3 /*break*/, 2];
                                     case 'SensorsDataChannel': return [3 /*break*/, 10];
+                                    case 'SensorsStatusChannel': return [3 /*break*/, 16];
                                 }
-                                return [3 /*break*/, 11];
+                                return [3 /*break*/, 20];
                             case 1:
-                                console.log(message.toString());
-                                return [3 /*break*/, 12];
+                                console.log('this is a response ' + message.toString());
+                                return [3 /*break*/, 21];
                             case 2:
                                 _b.trys.push([2, 8, , 9]);
                                 obj = JSON.parse(message.toString());
@@ -94,13 +97,15 @@ var MqttHelpers = /** @class */ (function () {
                                 return [4 /*yield*/, db_1.executeQuery(query.searchSensor(obj.macAddress))];
                             case 3:
                                 if (!((_b.sent())[0].count == 0)) return [3 /*break*/, 5];
+                                console.log('nu este sensors');
                                 return [4 /*yield*/, db_1.executeQuery(query.insertSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency))];
                             case 4:
                                 _b.sent();
                                 return [3 /*break*/, 7];
                             case 5:
+                                console.log('este sensors');
                                 console.log("update sensor information");
-                                return [4 /*yield*/, db_1.executeQuery(query.updateSensor(obj.sensorName, obj.macAddress, obj.sensorType, obj.readingFrequency))];
+                                return [4 /*yield*/, db_1.executeQuery(query.updateSensor(obj.macAddress, 'online'))];
                             case 6:
                                 _b.sent();
                                 _b.label = 7;
@@ -108,25 +113,45 @@ var MqttHelpers = /** @class */ (function () {
                             case 8:
                                 e_1 = _b.sent();
                                 return [3 /*break*/, 9];
-                            case 9: return [3 /*break*/, 12];
+                            case 9: return [3 /*break*/, 21];
                             case 10:
-                                try {
-                                    console.info(message.toString());
-                                    obj = JSON.parse(message.toString());
-                                    // let sensorId = await executeQuery(query.sensorId(obj.macAddress));
-                                    // if (sensorId) {
-                                    //     await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
-                                    // }
-                                }
-                                catch (e) {
-                                    // do nothing
-                                    console.error(e.message || e);
-                                }
-                                return [3 /*break*/, 12];
+                                _b.trys.push([10, 14, , 15]);
+                                console.info(message.toString());
+                                obj = JSON.parse(message.toString());
+                                return [4 /*yield*/, db_1.executeQuery(query.sensorId(obj.macAddress))];
                             case 11:
+                                sensorId = _b.sent();
+                                if (!sensorId) return [3 /*break*/, 13];
+                                return [4 /*yield*/, db_1.executeQuery(query.recordSensorData(sensorId[0].id, obj.data, Time_1.getCurrentDateTime()))];
+                            case 12:
+                                _b.sent();
+                                _b.label = 13;
+                            case 13: return [3 /*break*/, 15];
+                            case 14:
+                                e_2 = _b.sent();
+                                // do nothing
+                                console.error(e_2.message || e_2);
+                                return [3 /*break*/, 15];
+                            case 15: return [3 /*break*/, 21];
+                            case 16:
+                                _b.trys.push([16, 18, , 19]);
+                                console.log("update sensor status");
+                                obj = JSON.parse(message.toString());
+                                console.log(obj);
+                                return [4 /*yield*/, db_1.executeQuery(query.updateSensor(JSON.parse(obj.client).name.toString().toLowerCase(), obj.status))];
+                            case 17:
+                                _b.sent();
+                                return [3 /*break*/, 19];
+                            case 18:
+                                e_3 = _b.sent();
+                                // do nothing 
+                                console.error(e_3.message || e_3);
+                                return [3 /*break*/, 19];
+                            case 19: return [3 /*break*/, 21];
+                            case 20:
                                 console.warn(topic + " doesn't exist");
-                                _b.label = 12;
-                            case 12: return [2 /*return*/];
+                                _b.label = 21;
+                            case 21: return [2 /*return*/];
                         }
                     });
                 }); });

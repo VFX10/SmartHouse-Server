@@ -12,8 +12,8 @@ export const mqttServerAddress = '192.168.0.118';
 export const mqttOptions = {
     port: 1883,
     host: `mqrr://192.168.0.118`,
-    clientId: 'Hub',
-    clean: true,
+    clientId: '{"name" : "Hub"}',
+    clean: true, 
     encoding: 'utf8',
     username: 'matteo',
     password: '1234'

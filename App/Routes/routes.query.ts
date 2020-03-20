@@ -10,10 +10,10 @@ export function insertSensor(sensorName: string, macAddress: string, sensorType:
         values: [sensorName, macAddress, sensorType, readingFrequency]
     }
 }
-export function updateSensor(sensorName: string, macAddress: string, sensorType: string, readingFrequency: number) {
+export function updateSensor(macAddress: string, networkStatus: string) {
     return {
-        text: `UPDATE "Sensors" SET name = $1, "sensorType" = $2, "readingFrequency" = $3 WHERE "macAddress" = $4`,
-        values: [sensorName, sensorType, readingFrequency, macAddress]
+        text: `UPDATE "Sensors" SET "networkStatus" = $1 WHERE "macAddress" = $2`,
+        values: [networkStatus, macAddress]
     }
 }
 export function searchSensor(macAddress: string) {
@@ -57,14 +57,47 @@ export function addHouse(houseData: any) {
     return {
         text: `SELECT "AddHouse"($1, $2, $3);`,
         values: [houseData.houseName,
-        `${houseData.country}, ${houseData.county}, ${houseData.locality}, ${houseData.street},
-             ${houseData.number}`, houseData.userEmail]
+        `${houseData.country}, ${houseData.county}, ${houseData.locality}, ${houseData.street}, ${houseData.number}`, houseData.userEmail]
+    }
+}
+export function addSensor(sensorData: any) {
+    return {
+        text: `SELECT "AddSensor"($1, $2, $3, $4, $5);`,
+        values: [sensorData.sensorName,
+            sensorData.sensorType, sensorData.macAddress, sensorData.roomId, sensorData.readingFrequency]
+    }
+}
+export function removeSensorFromRoom(macAddress: any) {
+    // return {
+    //     text: `Update "Sensors" set "idRoom" = null WHERE "macAddress" = $1;
+    //     SELECT ("idRoom" IS NULL) AS RESPONSE FROM "Sensors" WHERE "macAddress" = $1;`,
+    //     values: [macAddress]
+    // }
+    return {
+        text: `SELECT "RemoveSensorFromRoom"($1);`,
+        values: [macAddress]
     }
 }
 export function addRoom(houseData: any) {
     return {
         text: `SELECT "AddRoom"($1, $2);`,
         values: [houseData.roomName, houseData.houseId]
+    }
+}
+
+export function getSensorLastState(sensorData: any) {
+    return {
+        text: `SELECT row_to_json(res)
+        FROM (SELECT s.name,
+                     CASE WHEN s."networkStatus" = 'online' THEN true ELSE false END as "networkStatus",
+                     SD.data,
+                     sd."recordDateTime"
+              FROM "Sensors" S
+                       INNER JOIN "SensorsData" SD on S.id = SD."idSensor"
+              WHERE s."macAddress" = $1
+              ORDER BY SD."recordDateTime" DESC
+              LIMIT 1) res`,
+        values: [sensorData.macAddress,]
     }
 }
 
