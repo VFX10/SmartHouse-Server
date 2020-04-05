@@ -20,7 +20,10 @@ router
     .get('/getSensorLastStatus', Sensors.getSensorLastState)
     .post('/add/house', House.addHouse)
     .post('/add/room', Room.addRoom)
+    .post('/remove/room', Room.removeRoom)
+    .post('/update/room', Room.updateRoom)
     .post('/add/sensor', Sensors.addSensor)
+    .post('/add/sensorsToRoom', Sensors.addSensorsToRoom)
     .post('/remove/sensorFromRoom', Sensors.removeSensorFromRoom)
     .use(verifyToken)
 

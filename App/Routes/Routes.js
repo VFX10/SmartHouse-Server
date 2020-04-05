@@ -20,7 +20,10 @@ router
     .get('/getSensorLastStatus', Sensors_1.default.getSensorLastState)
     .post('/add/house', House_1.default.addHouse)
     .post('/add/room', Room_1.default.addRoom)
+    .post('/remove/room', Room_1.default.removeRoom)
+    .post('/update/room', Room_1.default.updateRoom)
     .post('/add/sensor', Sensors_1.default.addSensor)
+    .post('/add/sensorsToRoom', Sensors_1.default.addSensorsToRoom)
     .post('/remove/sensorFromRoom', Sensors_1.default.removeSensorFromRoom)
     .use(Token_1.verifyToken);
 // .post("/recordSensorData", SensorData.recordSensorData)

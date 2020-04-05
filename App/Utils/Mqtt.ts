@@ -3,11 +3,17 @@ import { executeQuery } from "./db";
 import * as query from './../Routes/routes.query';
 import { getCurrentDateTime } from '../Time/Time';
 import { mqttServerAddress, mqttOptions } from '../../config';
+import * as admin from 'firebase-admin';
+// import * as conf from '../../homey-admin-sdk';
+// const = ../../homey-admin-sdk
+var serviceAccount = require("../../homey-admin-sdk.json");
 class MqttHelpers {
     client: any;
     topics: any;
     constructor() {
-
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+        })
         //executeQuery(query.getAllSensors()).then((val:any) => {
         this.client = mqtt.connect(`mqrr://${mqttServerAddress}`, mqttOptions);
         this.client.on('connect', async () => {
@@ -52,7 +58,9 @@ class MqttHelpers {
                         try {
                             console.info(message.toString());
                             let obj = JSON.parse(message.toString());
+                            // console.log(obj.macAddress)
                             let sensorId = await executeQuery(query.sensorId(obj.macAddress));
+                            // console.log(sensorId)
                             if (sensorId) {
                                 await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
                             }
@@ -67,14 +75,30 @@ class MqttHelpers {
                             let obj = JSON.parse(message.toString());
                             console.log(obj);
                             await executeQuery(query.updateSensor(JSON.parse(obj.client).name.toString().toLowerCase(), obj.status));
-
+                            const data = await executeQuery(query.getSensorName(JSON.parse(obj.client).name.toString().toLowerCase()));
+                            const notification = {
+                                notification: {
+                                    title: `Device is ${obj.status}`,
+                                    body: obj.status == 'online' ? `${data[0].name} is back online` : `${data[0].name} is offline`
+                                }
+                            };
+                            const options = {
+                                priority: 'high',
+                                timeToLive: 60 * 60 * 24
+                            };
+                            console.log('o sa trimit la', JSON.parse(obj.client).account);
+                            admin.messaging().sendToTopic(JSON.parse(obj.client).account.toString().replace('@', 'AT'), notification, options).then((response: any) => {
+                                console.log('Success', response);
+                            }).catch((error: any) => {
+                                console.error('Error', error);
+                            })
                         } catch (e) {
                             // do nothing 
                             console.error(e.message || e);
                         }
                         break;
                     default:
-                        console.warn(`${topic} doesn't exist`); 
+                        console.warn(`${topic} doesn't exist`);
                 }
 
 

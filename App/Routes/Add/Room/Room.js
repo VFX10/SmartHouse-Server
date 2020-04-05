@@ -80,6 +80,57 @@ var Room = /** @class */ (function () {
             });
         });
     };
+    Room.prototype.updateRoom = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(ctx.request.body.roomName && ctx.request.body.roomId)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.updateRoom(ctx.request.body.roomName, ctx.request.body.roomId))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        ctx.body = {
+                            success: "Room updated Successfully"
+                        };
+                        ctx.status = 200;
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Room.prototype.removeRoom = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!ctx.request.body.roomId) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.removeRoom(ctx.request.body.roomId))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        console.log(ctx.request.body);
+                        ctx.body = {
+                            success: "Room removed Successfully",
+                        };
+                        ctx.status = 200;
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return Room;
 }());
 exports.default = new Room();

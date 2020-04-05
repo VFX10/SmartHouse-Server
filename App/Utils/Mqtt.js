@@ -48,12 +48,19 @@ var db_1 = require("./db");
 var query = __importStar(require("./../Routes/routes.query"));
 var Time_1 = require("../Time/Time");
 var config_1 = require("../../config");
+var admin = __importStar(require("firebase-admin"));
+// import * as conf from '../../homey-admin-sdk';
+// const = ../../homey-admin-sdk
+var serviceAccount = require("../../homey-admin-sdk.json");
 var MqttHelpers = /** @class */ (function () {
     function MqttHelpers() {
         var _this = this;
         this.publish = function (topic, message) {
             _this.client.publish(topic, message);
         };
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+        });
         //executeQuery(query.getAllSensors()).then((val:any) => {
         this.client = mqtt.connect("mqrr://" + config_1.mqttServerAddress, config_1.mqttOptions);
         this.client.on('connect', function () { return __awaiter(_this, void 0, void 0, function () {
@@ -75,7 +82,7 @@ var MqttHelpers = /** @class */ (function () {
                 //  }); 
                 //}) 
                 this.client.on('message', function (topic, message) { return __awaiter(_this, void 0, void 0, function () {
-                    var _a, obj, e_1, obj, sensorId, e_2, obj, e_3;
+                    var _a, obj, e_1, obj, sensorId, e_2, obj, data, notification, options, e_3;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
@@ -86,10 +93,10 @@ var MqttHelpers = /** @class */ (function () {
                                     case 'SensorsDataChannel': return [3 /*break*/, 10];
                                     case 'SensorsStatusChannel': return [3 /*break*/, 16];
                                 }
-                                return [3 /*break*/, 20];
+                                return [3 /*break*/, 21];
                             case 1:
                                 console.log('this is a response ' + message.toString());
-                                return [3 /*break*/, 21];
+                                return [3 /*break*/, 22];
                             case 2:
                                 _b.trys.push([2, 8, , 9]);
                                 obj = JSON.parse(message.toString());
@@ -113,7 +120,7 @@ var MqttHelpers = /** @class */ (function () {
                             case 8:
                                 e_1 = _b.sent();
                                 return [3 /*break*/, 9];
-                            case 9: return [3 /*break*/, 21];
+                            case 9: return [3 /*break*/, 22];
                             case 10:
                                 _b.trys.push([10, 14, , 15]);
                                 console.info(message.toString());
@@ -132,26 +139,45 @@ var MqttHelpers = /** @class */ (function () {
                                 // do nothing
                                 console.error(e_2.message || e_2);
                                 return [3 /*break*/, 15];
-                            case 15: return [3 /*break*/, 21];
+                            case 15: return [3 /*break*/, 22];
                             case 16:
-                                _b.trys.push([16, 18, , 19]);
+                                _b.trys.push([16, 19, , 20]);
                                 console.log("update sensor status");
                                 obj = JSON.parse(message.toString());
                                 console.log(obj);
                                 return [4 /*yield*/, db_1.executeQuery(query.updateSensor(JSON.parse(obj.client).name.toString().toLowerCase(), obj.status))];
                             case 17:
                                 _b.sent();
-                                return [3 /*break*/, 19];
+                                return [4 /*yield*/, db_1.executeQuery(query.getSensorName(JSON.parse(obj.client).name.toString().toLowerCase()))];
                             case 18:
+                                data = _b.sent();
+                                notification = {
+                                    notification: {
+                                        title: "Device is " + obj.status,
+                                        body: obj.status == 'online' ? data[0].name + " is back online" : data[0].name + " is offline"
+                                    }
+                                };
+                                options = {
+                                    priority: 'high',
+                                    timeToLive: 60 * 60 * 24
+                                };
+                                console.log('o sa trimit la', JSON.parse(obj.client).account);
+                                admin.messaging().sendToTopic(JSON.parse(obj.client).account.toString().replace('@', 'AT'), notification, options).then(function (response) {
+                                    console.log('Success', response);
+                                }).catch(function (error) {
+                                    console.error('Error', error);
+                                });
+                                return [3 /*break*/, 20];
+                            case 19:
                                 e_3 = _b.sent();
                                 // do nothing 
                                 console.error(e_3.message || e_3);
-                                return [3 /*break*/, 19];
-                            case 19: return [3 /*break*/, 21];
-                            case 20:
+                                return [3 /*break*/, 20];
+                            case 20: return [3 /*break*/, 22];
+                            case 21:
                                 console.warn(topic + " doesn't exist");
-                                _b.label = 21;
-                            case 21: return [2 /*return*/];
+                                _b.label = 22;
+                            case 22: return [2 /*return*/];
                         }
                     });
                 }); });

@@ -99,7 +99,7 @@ var Sensors = /** @class */ (function () {
     };
     Sensors.prototype.addSensor = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {
-            var obj, data;
+            var obj, data, data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -107,9 +107,10 @@ var Sensors = /** @class */ (function () {
                         console.log(obj);
                         if (!(obj.sensorName &&
                             obj.sensorType &&
-                            obj.roomId &&
+                            //obj.roomId &&
                             obj.macAddress &&
-                            obj.readingFrequency)) return [3 /*break*/, 2];
+                            obj.readingFrequency)) return [3 /*break*/, 5];
+                        if (!(obj.roomId != null)) return [3 /*break*/, 2];
                         return [4 /*yield*/, db_1.executeQuery(query.addSensor(obj))];
                     case 1:
                         data = _a.sent();
@@ -123,6 +124,58 @@ var Sensors = /** @class */ (function () {
                         }
                         else {
                             ctx.body = { error: "Room doesn\'t exist" };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, db_1.executeQuery(query.addSensorWithoutRoom(obj))];
+                    case 3:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].AddSensorWithoutRoom) {
+                            ctx.body = {
+                                success: "Sensor added Successfully",
+                                sensor: data[0].AddSensorWithoutRoom
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: "Room doesn\'t exist" };
+                            ctx.status = 500;
+                        }
+                        _a.label = 4;
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 6;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.addSensorsToRoom = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.body;
+                        console.log(obj);
+                        ctx.status = 200;
+                        if (!(obj.roomId &&
+                            obj.devices)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.addSensorsToRoom(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].AddSensorsToRoom.success) {
+                            ctx.body = {
+                                success: data[0].AddSensorsToRoom.success,
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = data[0].AddSensorsToRoom.error;
                             ctx.status = 500;
                         }
                         return [3 /*break*/, 3];

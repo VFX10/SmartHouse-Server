@@ -37,22 +37,62 @@ class Sensors {
 
         if (obj.sensorName &&
             obj.sensorType &&
-            obj.roomId &&
+            //obj.roomId &&
             obj.macAddress &&
             obj.readingFrequency) {
-            const data = await executeQuery(query.addSensor(obj));
+                if(obj.roomId != null) {
+                    const data = await executeQuery(query.addSensor(obj));
+                    console.log(data);
+                    if (data[0].AddSensor) {
+                        ctx.body = {
+                            success: "Sensor added Successfully",
+                            sensor: data[0].AddSensor
+                        };
+                        ctx.status = 200;
+                    } else {
+                        ctx.body = { error: "Room doesn\'t exist" };
+                        ctx.status = 500;
+                    }
+        
+                } else {
+                    const data = await executeQuery(query.addSensorWithoutRoom(obj));
+                    console.log(data);
+                    if (data[0].AddSensorWithoutRoom) {
+                        ctx.body = {
+                            success: "Sensor added Successfully",
+                            sensor: data[0].AddSensorWithoutRoom
+                        };
+                        ctx.status = 200;
+                    } else {
+                        ctx.body = { error: "Room doesn\'t exist" };
+                        ctx.status = 500;
+                    }
+                }
+           
+        } else {
+            ctx.body = { error: 'Unprocessable entity' }
+            ctx.status = 401;
+        }
+
+    }
+    async addSensorsToRoom(ctx: any) {
+
+        let obj = ctx.request.body;
+        console.log(obj);
+        ctx.status = 200;
+        if (obj.roomId &&
+            obj.devices) { 
+            const data = await executeQuery(query.addSensorsToRoom(obj));
             console.log(data);
-            if (data[0].AddSensor) {
+            if (data[0].AddSensorsToRoom.success) {
                 ctx.body = {
-                    success: "Sensor added Successfully",
-                    sensor: data[0].AddSensor
+                    success: data[0].AddSensorsToRoom.success,//"Sensors added Successfully"
                 };
                 ctx.status = 200;
             } else {
-                ctx.body = { error: "Room doesn\'t exist" };
+                ctx.body = data[0].AddSensorsToRoom.error;
                 ctx.status = 500;
             }
-
         } else {
             ctx.body = { error: 'Unprocessable entity' }
             ctx.status = 401;
@@ -64,7 +104,7 @@ class Sensors {
         let obj = ctx.request.body;
         console.log(obj);
 
-        if (obj.macAddress) {
+        if (obj.macAddress) { 
             const data = await executeQuery(query.removeSensorFromRoom(obj.macAddress));
             console.log(data);
             if (data[0].RemoveSensorFromRoom) {

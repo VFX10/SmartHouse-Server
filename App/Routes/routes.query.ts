@@ -16,6 +16,12 @@ export function updateSensor(macAddress: string, networkStatus: string) {
         values: [networkStatus, macAddress]
     }
 }
+export function getSensorName(macAddress: string) {
+    return {
+        text: `SELECT name FROM  "Sensors" WHERE "macAddress" = $1`,
+        values: [macAddress]
+    }
+}
 export function searchSensor(macAddress: string) {
     return {
         text: `SELECT count(*) FROM "Sensors" WHERE "macAddress" = $1`,
@@ -64,7 +70,15 @@ export function addSensor(sensorData: any) {
     return {
         text: `SELECT "AddSensor"($1, $2, $3, $4, $5);`,
         values: [sensorData.sensorName,
-            sensorData.sensorType, sensorData.macAddress, sensorData.roomId, sensorData.readingFrequency]
+        sensorData.sensorType, sensorData.macAddress, sensorData.roomId, sensorData.readingFrequency]
+    }
+}
+}
+export function addSensorWithoutRoom(sensorData: any) {
+    return {
+        text: `SELECT "AddSensorWithoutRoom"($1, $2, $3, $4, $5);`,
+        values: [sensorData.sensorName,
+        sensorData.sensorType, sensorData.macAddress, sensorData.readingFrequency, sensorData.userEmail]
     }
 }
 export function removeSensorFromRoom(macAddress: any) {
@@ -85,19 +99,38 @@ export function addRoom(houseData: any) {
     }
 }
 
+export function removeRoom(roomId: any) {
+    return {
+        text: `DELETE FROM "Rooms" WHERE id = $1;`,
+        values: [roomId]
+    }
+}
+export function updateRoom(roomName: string, roomId: number) {
+    return {
+        text: `UPDATE "Rooms" SET name = $1 WHERE id = $2;`,
+        values: [roomName, roomId]
+    }
+}
+
 export function getSensorLastState(sensorData: any) {
     return {
         text: `SELECT row_to_json(res)
         FROM (SELECT s.name,
                      CASE WHEN s."networkStatus" = 'online' THEN true ELSE false END as "networkStatus",
-                     SD.data,
-                     sd."recordDateTime"
+                     CASE WHEN SD.data IS NOT NULL THEN SD.data ELSE '{"status": 0}'::json END as "data",
+                     CASE WHEN sd."recordDateTime" IS NOT NULL THEN SD.data END as "recordDateTime"
               FROM "Sensors" S
-                       INNER JOIN "SensorsData" SD on S.id = SD."idSensor"
+                       LEFT JOIN "SensorsData" SD on S.id = SD."idSensor"
               WHERE s."macAddress" = $1
               ORDER BY SD."recordDateTime" DESC
               LIMIT 1) res`,
         values: [sensorData.macAddress,]
+    }
+}
+export function addSensorsToRoom(data: any) {
+    return {
+        text: `SELECT "AddSensorsToRoom"($1, $2);`,
+        values: [data.roomId, data.devices]
     }
 }
 
