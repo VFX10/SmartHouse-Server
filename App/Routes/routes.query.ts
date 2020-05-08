@@ -73,7 +73,6 @@ export function addSensor(sensorData: any) {
         sensorData.sensorType, sensorData.macAddress, sensorData.roomId, sensorData.readingFrequency]
     }
 }
-}
 export function addSensorWithoutRoom(sensorData: any) {
     return {
         text: `SELECT "AddSensorWithoutRoom"($1, $2, $3, $4, $5);`,
@@ -116,17 +115,119 @@ export function getSensorLastState(sensorData: any) {
     return {
         text: `SELECT row_to_json(res)
         FROM (SELECT s.name,
-                     CASE WHEN s."networkStatus" = 'online' THEN true ELSE false END as "networkStatus",
-                     CASE WHEN SD.data IS NOT NULL THEN SD.data ELSE '{"status": 0}'::json END as "data",
-                     CASE WHEN sd."recordDateTime" IS NOT NULL THEN SD.data END as "recordDateTime"
+                     coalesce(s."networkStatus" = 'online', false)    as "networkStatus",
+                     coalesce(SD.data, '{}'::json)                    as "data",
+                     coalesce(SD."recordDateTime", current_timestamp) as "recordDateTime"
               FROM "Sensors" S
                        LEFT JOIN "SensorsData" SD on S.id = SD."idSensor"
               WHERE s."macAddress" = $1
               ORDER BY SD."recordDateTime" DESC
-              LIMIT 1) res`,
+              LIMIT 1) res;`,
         values: [sensorData.macAddress,]
     }
 }
+
+export function getWeeklyPowerStats(sensorData: any) {
+    return {
+        text: `SELECT array_to_json(ARRAY(SELECT row_to_json(rec)
+        FROM (
+                 SELECT ROUND(AVG(CAST(data ->> 'power' AS NUMERIC)), 2) AS power,
+                        MAX(SD."recordDateTime")                         AS date,
+                        MAX(EXTRACT(DOW FROM SD."recordDateTime"))       AS "dayOfWeek"
+                 FROM "SensorsData" SD
+                          INNER JOIN "Sensors" S ON SD."idSensor" = S.id
+                 WHERE S."macAddress" = $1
+                   AND CAST(data ->> 'power' AS NUMERIC) > 0
+                   AND extract(WEEK FROM SD."recordDateTime") = EXTRACT(WEEK FROM CAST($2 AS DATE))
+                   AND EXTRACT(YEAR FROM SD."recordDateTime") =
+                       EXTRACT(YEAR FROM CAST($2 AS DATE))
+                 GROUP BY EXTRACT(YEAR FROM SD."recordDateTime"),
+                          EXTRACT(MONTH FROM SD."recordDateTime"), 
+                          EXTRACT(DAY FROM SD."recordDateTime")
+                 ORDER BY "dayOfWeek") rec));`,
+        values: [sensorData.macAddress,sensorData.currentDateTime]
+    }
+}
+export function getMonthlyPowerStats(sensorData: any) {
+    return {
+        text: `SELECT array_to_json(ARRAY(SELECT row_to_json(rec)
+        FROM (
+                 SELECT ROUND(AVG(CAST(data ->> 'power' AS NUMERIC)), 2) AS power,
+                        EXTRACT(MONTH FROM SD."recordDateTime")          AS month,
+                        MAX(SD."recordDateTime")                         AS date
+                 FROM "SensorsData" SD
+                          INNER JOIN "Sensors" S ON SD."idSensor" = S.id
+                 WHERE S."macAddress" = $1
+                   AND CAST(data ->> 'power' AS NUMERIC) > 0
+                   AND EXTRACT(YEAR FROM SD."recordDateTime") =
+                       EXTRACT(YEAR FROM CAST($2 AS DATE))
+                 GROUP BY EXTRACT(YEAR FROM SD."recordDateTime"),
+                          EXTRACT(MONTH FROM SD."recordDateTime")
+                 ORDER BY month) rec));`,
+        values: [sensorData.macAddress,sensorData.currentDateTime]
+    }
+}
+export function getYearlyPowerStats(sensorData: any) {
+    return {
+        text: `SELECT array_to_json(ARRAY(SELECT row_to_json(rec)
+        FROM (
+                 SELECT ROUND(AVG(CAST(data ->> 'power' AS NUMERIC)), 2) AS power,
+                        MAX(SD."recordDateTime")                         AS date,
+                        EXTRACT(YEAR FROM SD."recordDateTime")           AS year
+                 FROM "SensorsData" SD
+                          INNER JOIN "Sensors" S ON SD."idSensor" = S.id
+                 WHERE S."macAddress" = $1
+                   AND CAST(data ->> 'power' AS NUMERIC) > 0
+                 GROUP BY EXTRACT(YEAR FROM SD."recordDateTime")
+                 ORDER BY EXTRACT(YEAR FROM SD."recordDateTime")) rec));`,
+        values: [sensorData.macAddress]
+    }
+}
+export function getMonthsPowerStats(sensorData: any) {
+    return {
+        text: `SELECT array_to_json(ARRAY(SELECT row_to_json(rec)
+        FROM (
+select Date(s), trim(TO_CHAR(s, 'Month')) AS "monthName", coalesce(t.power, 0) as "powerAverage"
+FROM generate_series(Concat($1::text, '-01-01')::timestamp, Concat($1::text, '-12-31')::timestamp, '1 month') s
+LEFT JOIN (SELECT ROUND(AVG(CAST(data ->> 'power' AS NUMERIC)), 2) AS power,
+        EXTRACT(MONTH FROM SD."recordDateTime")          AS month,
+        MAX(SD."recordDateTime")                         AS date
+ FROM "SensorsData" SD
+          INNER JOIN "Sensors" S ON SD."idSensor" = S.id
+ WHERE S."macAddress" = $2
+   AND CAST(data ->> 'power' AS NUMERIC) > 0
+   AND EXTRACT(YEAR FROM SD."recordDateTime") =
+       $1::int
+ GROUP BY EXTRACT(YEAR FROM SD."recordDateTime"),
+          EXTRACT(MONTH FROM SD."recordDateTime")
+ ORDER BY month) t on EXTRACT(MONTH FROM t.date) = EXTRACT(MONTH FROM s)
+order by s) rec), true);`,
+        values: [sensorData.year, sensorData.macAddress]
+    }
+}
+export function getWeeksPowerStats(sensorData: any) {
+    return {
+        text: `SELECT array_to_json(ARRAY(SELECT row_to_json(rec)
+        FROM (
+select Date(s), coalesce(t.power, 0) as "powerAverage"
+FROM generate_series(Concat($1::int, '-', $2::int ,'-01')::timestamp, Concat($1::int, '-', ($2 +1)::int,'-01')::timestamp, '1 week') s
+LEFT JOIN (SELECT ROUND(AVG(CAST(data ->> 'power' AS NUMERIC)), 2) AS power,
+        EXTRACT(week FROM SD."recordDateTime")          AS week,
+        MAX(SD."recordDateTime")                         AS date
+ FROM "SensorsData" SD
+          INNER JOIN "Sensors" S ON SD."idSensor" = S.id
+ WHERE S."macAddress" = $3
+   AND CAST(data ->> 'power' AS NUMERIC) > 0
+   AND EXTRACT(YEAR FROM SD."recordDateTime") = $1::int
+ GROUP BY EXTRACT(YEAR FROM SD."recordDateTime"),
+          EXTRACT(week FROM SD."recordDateTime")
+ ORDER BY week) t on EXTRACT(Week FROM t.date) = EXTRACT(Week FROM s)
+order by s) rec), true);`,
+        values: [sensorData.year, sensorData.month, sensorData.macAddress]
+    }
+}
+
+
 export function addSensorsToRoom(data: any) {
     return {
         text: `SELECT "AddSensorsToRoom"($1, $2);`,

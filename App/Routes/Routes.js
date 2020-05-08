@@ -24,6 +24,12 @@ router
     .post('/update/room', Room_1.default.updateRoom)
     .post('/add/sensor', Sensors_1.default.addSensor)
     .post('/add/sensorsToRoom', Sensors_1.default.addSensorsToRoom)
+    .get('/getWeeklyPowerConsumption', Sensors_1.default.getWeeklyPowerConsumption)
+    .get('/getMonthlyPowerConsumption', Sensors_1.default.getMonthlyPowerConsumption)
+    .get('/getYearlyPowerConsumption', Sensors_1.default.getYearlyPowerConsumption)
+    .get('/getMonthsPowerConsumption', Sensors_1.default.getMonthsPowerConsumption)
+    .get('/getWeeksPowerConsumption', Sensors_1.default.getWeeksPowerConsumption)
     .post('/remove/sensorFromRoom', Sensors_1.default.removeSensorFromRoom)
+    .post('/sendEventToAllDevices', Sensors_1.default.sendEventToAllDevices)
     .use(Token_1.verifyToken);
 // .post("/recordSensorData", SensorData.recordSensorData)

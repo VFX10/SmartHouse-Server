@@ -64,6 +64,26 @@ class MqttHelpers {
                             if (sensorId) {
                                 await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
                             }
+                            console.log('dataaaaa', obj.account);
+                            if(obj.data.warning == true){
+                                const notification = {
+                                    notification: {
+                                        title: `Warning`,
+                                        body: `Emissions detected` 
+                                    }
+                                };
+                                const options = {
+                                    priority: 'high',
+                                    timeToLive: 60 * 60 * 24
+                                };
+                                console.log('o sa trimit la', obj.account);
+                                admin.messaging().sendToTopic(obj.account.toString().replace('@', 'AT'), notification, options).then((response: any) => {
+                                    console.log('Success', response);
+                                }).catch((error: any) => {
+                                    console.error('Error', error);
+                                })
+                            }
+                            
                         } catch (e) {
                             // do nothing
                             console.error(e.message || e);

@@ -56,20 +56,15 @@ var Sensors = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var payload;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        payload = {
-                            macAddress: ctx.request.body.macAddress,
-                            event: ctx.request.body.event,
-                            config: ctx.request.body.config
-                        };
-                        console.log('aaaa', JSON.stringify(payload));
-                        return [4 /*yield*/, Mqtt_1.default.mqttConnection.publish("SensorsSettingsChannel", JSON.stringify(payload))];
-                    case 1:
-                        _a.sent();
-                        ctx.body = { success: "event sent successfully" };
-                        return [2 /*return*/];
-                }
+                payload = {
+                    macAddress: ctx.request.body.macAddress,
+                    event: ctx.request.body.event,
+                    config: ctx.request.body.config
+                };
+                console.log('aaaa', JSON.stringify(payload));
+                Mqtt_1.default.mqttConnection.publish("SensorsSettingsChannel", JSON.stringify(payload));
+                ctx.body = { success: "event sent successfully" };
+                return [2 /*return*/];
             });
         });
     };
@@ -109,7 +104,7 @@ var Sensors = /** @class */ (function () {
                             obj.sensorType &&
                             //obj.roomId &&
                             obj.macAddress &&
-                            obj.readingFrequency)) return [3 /*break*/, 5];
+                            obj.readingFrequency >= 0)) return [3 /*break*/, 5];
                         if (!(obj.roomId != null)) return [3 /*break*/, 2];
                         return [4 /*yield*/, db_1.executeQuery(query.addSensor(obj))];
                     case 1:
@@ -150,6 +145,203 @@ var Sensors = /** @class */ (function () {
                         _a.label = 6;
                     case 6: return [2 /*return*/];
                 }
+            });
+        });
+    };
+    Sensors.prototype.getWeeklyPowerConsumption = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.query;
+                        console.log(obj);
+                        if (!(obj.macAddress && obj.currentDateTime)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.getWeeklyPowerStats(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].array_to_json) {
+                            ctx.body = {
+                                data: data[0].array_to_json,
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: 'Error retriving information' };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.getMonthlyPowerConsumption = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.query;
+                        console.log(obj);
+                        if (!(obj.macAddress && obj.currentDateTime)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.getMonthlyPowerStats(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].array_to_json) {
+                            ctx.body = {
+                                data: data[0].array_to_json,
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: 'Error retriving information' };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.getYearlyPowerConsumption = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.query;
+                        console.log(obj);
+                        if (!obj.macAddress) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.getYearlyPowerStats(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].array_to_json) {
+                            ctx.body = {
+                                data: data[0].array_to_json,
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: 'Error retriving information' };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.getMonthsPowerConsumption = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.query;
+                        console.log(obj);
+                        console.log(ctx.request.body);
+                        if (!(obj.macAddress && obj.year)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.getMonthsPowerStats(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].array_to_json) {
+                            ctx.body = {
+                                data: data[0].array_to_json,
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: 'Error retriving information' };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.getWeeksPowerConsumption = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = ctx.request.query;
+                        console.log(obj);
+                        console.log(ctx.request.body);
+                        if (!(obj.macAddress && obj.month && obj.year)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, db_1.executeQuery(query.getWeeksPowerStats(obj))];
+                    case 1:
+                        data = _a.sent();
+                        console.log(data);
+                        if (data[0].array_to_json) {
+                            ctx.body = {
+                                data: data[0].array_to_json,
+                            };
+                            ctx.status = 200;
+                        }
+                        else {
+                            ctx.body = { error: 'Error retriving information' };
+                            ctx.status = 500;
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        ctx.body = { error: 'Unprocessable entity' };
+                        ctx.status = 401;
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Sensors.prototype.sendEventToAllDevices = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                console.log(ctx.request.body);
+                if (ctx.request.body.devices && (ctx.request.body.event || ctx.request.body.config)) {
+                    // console.log('it is good');
+                    ctx.request.body.devices.forEach(function (device) { return __awaiter(_this, void 0, void 0, function () {
+                        var payload;
+                        return __generator(this, function (_a) {
+                            payload = {
+                                macAddress: device,
+                                event: ctx.request.body.event,
+                                config: ctx.request.body.config
+                            };
+                            Mqtt_1.default.mqttConnection.publish("SensorsSettingsChannel", JSON.stringify(payload));
+                            return [2 /*return*/];
+                        });
+                    }); });
+                    ctx.body = { success: "event sent successfully" };
+                    ctx.status = 200;
+                }
+                else {
+                    ctx.body = { error: 'Unprocessable entity' };
+                    ctx.status = 401;
+                }
+                return [2 /*return*/];
             });
         });
     };

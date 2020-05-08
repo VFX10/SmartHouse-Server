@@ -82,7 +82,7 @@ var MqttHelpers = /** @class */ (function () {
                 //  }); 
                 //}) 
                 this.client.on('message', function (topic, message) { return __awaiter(_this, void 0, void 0, function () {
-                    var _a, obj, e_1, obj, sensorId, e_2, obj, data, notification, options, e_3;
+                    var _a, obj, e_1, obj, sensorId, notification, options, e_2, obj, data, notification, options, e_3;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
@@ -133,7 +133,27 @@ var MqttHelpers = /** @class */ (function () {
                             case 12:
                                 _b.sent();
                                 _b.label = 13;
-                            case 13: return [3 /*break*/, 15];
+                            case 13:
+                                console.log('dataaaaa', obj.account);
+                                if (obj.data.warning == true) {
+                                    notification = {
+                                        notification: {
+                                            title: "Warning",
+                                            body: "Emissions detected"
+                                        }
+                                    };
+                                    options = {
+                                        priority: 'high',
+                                        timeToLive: 60 * 60 * 24
+                                    };
+                                    console.log('o sa trimit la', obj.account);
+                                    admin.messaging().sendToTopic(obj.account.toString().replace('@', 'AT'), notification, options).then(function (response) {
+                                        console.log('Success', response);
+                                    }).catch(function (error) {
+                                        console.error('Error', error);
+                                    });
+                                }
+                                return [3 /*break*/, 15];
                             case 14:
                                 e_2 = _b.sent();
                                 // do nothing
