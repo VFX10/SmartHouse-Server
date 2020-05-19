@@ -1,3 +1,5 @@
 import { App } from './App/App';
+import { MqttServer } from './App/MQTTServer/mqttServer';
 
-let app = new App();
+new MqttServer();
+new App();
