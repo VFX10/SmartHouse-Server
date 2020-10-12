@@ -70,10 +70,11 @@ var Sensors = /** @class */ (function () {
     };
     Sensors.prototype.getSensorLastState = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {
-            var data;
+            var data, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        _a.trys.push([0, 4, , 5]);
                         console.log('query', ctx.request.query);
                         if (!ctx.request.query.macAddress) return [3 /*break*/, 2];
                         return [4 /*yield*/, db_1.executeQuery(query.getSensorLastState(ctx.request.query))];
@@ -87,7 +88,12 @@ var Sensors = /** @class */ (function () {
                         ctx.body = { error: 'Unprocessable entity' };
                         ctx.status = 401;
                         _a.label = 3;
-                    case 3: return [2 /*return*/];
+                    case 3: return [3 /*break*/, 5];
+                    case 4:
+                        e_1 = _a.sent();
+                        console.log(e_1);
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -344,6 +350,10 @@ var Sensors = /** @class */ (function () {
                 return [2 /*return*/];
             });
         });
+    };
+    Sensors.prototype.livolo = function (ctx) {
+        Mqtt_1.default.mqttConnection.publish("zigbee2mqtt/0x00124b0018027c33/left/set", ctx.request.body.event);
+        ctx.body = { success: "event sent successfully" };
     };
     Sensors.prototype.addSensorsToRoom = function (ctx) {
         return __awaiter(this, void 0, void 0, function () {

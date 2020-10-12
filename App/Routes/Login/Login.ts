@@ -1,10 +1,12 @@
+
+import Koa from 'koa';
 import { executeQuery } from "../../Utils/db";
 import * as query from '../../Routes/routes.query';
 var jwt = require('jsonwebtoken');
 
 class Login {
     constructor() { }
-    async loginUser(ctx: any) {
+    async loginUser(ctx: Koa.Context) {
 
         console.log(ctx.request.body);
         if (ctx.request.body.email &&

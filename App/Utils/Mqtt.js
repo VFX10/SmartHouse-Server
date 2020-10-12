@@ -74,6 +74,7 @@ var MqttHelpers = /** @class */ (function () {
                         console.log("successfully subscribed to SensorsConfigChannel");
                         console.log("successfully subscribed to SensorsStatusChannel");
                         console.log("successfully subscribed to response");
+                        console.log("successfully subscribed to zigbee2mqtt/0x00124b0018027c33/left/set/");
                     }
                     else {
                         console.log(err);
@@ -195,7 +196,7 @@ var MqttHelpers = /** @class */ (function () {
                                 return [3 /*break*/, 20];
                             case 20: return [3 /*break*/, 22];
                             case 21:
-                                console.warn(topic + " doesn't exist");
+                                console.log(topic, message.toString());
                                 _b.label = 22;
                             case 22: return [2 /*return*/];
                         }

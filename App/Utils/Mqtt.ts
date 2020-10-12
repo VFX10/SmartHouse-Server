@@ -25,6 +25,8 @@ class MqttHelpers {
                     console.log("successfully subscribed to SensorsConfigChannel");
                     console.log("successfully subscribed to SensorsStatusChannel");
                     console.log("successfully subscribed to response");
+                    console.log("successfully subscribed to zigbee2mqtt/0x00124b0018027c33/left/set/");
+
                 }
                 else {
                     console.log(err);
@@ -65,11 +67,11 @@ class MqttHelpers {
                                 await executeQuery(query.recordSensorData(sensorId[0].id, obj.data, getCurrentDateTime()))
                             }
                             console.log('dataaaaa', obj.account);
-                            if(obj.data.warning == true){
+                            if (obj.data.warning == true) {
                                 const notification = {
                                     notification: {
                                         title: `Warning`,
-                                        body: `Emissions detected` 
+                                        body: `Emissions detected`
                                     }
                                 };
                                 const options = {
@@ -83,7 +85,7 @@ class MqttHelpers {
                                     console.error('Error', error);
                                 })
                             }
-                            
+
                         } catch (e) {
                             // do nothing
                             console.error(e.message || e);
@@ -118,7 +120,10 @@ class MqttHelpers {
                         }
                         break;
                     default:
-                        console.warn(`${topic} doesn't exist`);
+                        console.log(topic, message.toString());
+                    // this.publish();
+
+                    // console.warn(`${topic} doesn't exist`);
                 }
 
 

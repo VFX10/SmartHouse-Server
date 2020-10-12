@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var config_1 = require("../../config");
 var net = require('net');
 // import { port } from '../config';
 var aedes = require('aedes')();
-var port = 1883;
 var MqttServer = /** @class */ (function () {
     function MqttServer(server) {
         var _this = this;
         this.server = server;
         // listen on port 1883
         server = net.createServer(aedes.handle);
-        server.listen(port, function () {
-            console.log('server listening on port', port);
+        server.listen(config_1.MQTTport, function () {
+            console.log('MQTT Server listening on port', config_1.MQTTport);
         });
         aedes.authorizeSubscribe = function (client, packet, callback) {
             // console.log(client); 
@@ -118,10 +118,9 @@ var MqttServer = /** @class */ (function () {
                     return null;
             }
         };
-        aedes.authenticate = function (client, username, password, callback) {
+        aedes.authenticate = function (_client, _username, _password, callback) {
             callback(null, true, true);
         };
-        console.log("MQTT server running on port " + port + "!");
     }
     MqttServer.prototype.isJson = function (str) {
         try {

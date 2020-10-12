@@ -31,5 +31,6 @@ router
     .get('/getWeeksPowerConsumption', Sensors_1.default.getWeeksPowerConsumption)
     .post('/remove/sensorFromRoom', Sensors_1.default.removeSensorFromRoom)
     .post('/sendEventToAllDevices', Sensors_1.default.sendEventToAllDevices)
+    .post('/livolo', Sensors_1.default.livolo)
     .use(Token_1.verifyToken);
 // .post("/recordSensorData", SensorData.recordSensorData)

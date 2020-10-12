@@ -1,7 +1,9 @@
+import { MQTTport as port } from "../../config";
+
 var net = require('net')
 // import { port } from '../config';
 const aedes = require('aedes')();
-const port = 1883;
+
 
 export class MqttServer {
     isJson(str: string) {
@@ -20,12 +22,12 @@ export class MqttServer {
         server = net.createServer(aedes.handle)
 
         server.listen(port, function () {
-            console.log('server listening on port', port)
+            console.log('MQTT Server listening on port', port);
         });
         aedes.authorizeSubscribe = (client: any, packet: any, callback: any) => {
             // console.log(client); 
             if (!this.isJson(client.id)) {
-                return callback(new Error(`Invalid device -> ${client.id}`));
+                return callback(new Error(`Invalid device -> ${client.id}`)); 
             } else {
                 console.log('\x1b[33m%s', `Client ${client.id} subscribed to channel ${packet.topic}`);
 
@@ -136,11 +138,10 @@ export class MqttServer {
                     return null;
             }
         };
-        aedes.authenticate = function (client: any, username: any, password: any, callback: any) {
+        aedes.authenticate = function (_client: any, _username: any, _password: any, callback: any) {
 
             callback(null, true, true);
         };
-        console.log(`MQTT server running on port ${port}!`);
     }
     
 }
