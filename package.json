@@ -32,7 +32,7 @@
     "deep-equal": "^2.0.1",
     "firebase-admin": "^8.10.0",
     "generate-password": "^1.4.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-cors": "0.0.16",
